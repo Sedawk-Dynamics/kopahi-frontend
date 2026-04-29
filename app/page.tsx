@@ -102,102 +102,166 @@ export default function Home() {
         }
       `}</style>
 
-      {/* ================= NAVBAR (always transparent + smart text color) ================= */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2 group" aria-label="Kopahi home">
-            <div className="relative h-16 w-16 lg:h-[180px] lg:w-[180px]">
-              <Image
-                src="/Logo1.png"
-                alt="Kopahi logo"
-                fill
-                priority
-                className="object-contain transition-transform group-hover:scale-105 drop-shadow-lg"
-              />
-            </div>
-          </Link>
-        
+{/* ================= PREMIUM HEADER - REPLACE ONLY YOUR <nav> SECTION WITH THIS ================= */}
+<nav className="fixed top-0 left-0 right-0 z-50">
+  {/* TOP BAR */}
+  <div className="bg-gradient-to-r from-green-900 via-green-800 to-green-900 text-white text-[13px] tracking-wide">
+    <div className="max-w-7xl mx-auto px-6 lg:px-8 h-10 flex items-center justify-between">
+      <p className="hidden md:block font-medium">
+        Open Doors To A World Of Indigenous Food
+      </p>
 
-          <div className="hidden lg:flex gap-8 font-medium text-sm items-center">
-            {navLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={`transition-all duration-500 relative group ${
-                  scrolled
-                    ? "text-gray-700 hover:text-green-700"
-                    : "text-white hover:text-green-200 drop-shadow-lg"
-                }`}
-              >
-                {l.label}
-                <span
-                  className={`absolute -bottom-1 left-0 w-0 h-0.5 transition-all group-hover:w-full ${
-                    scrolled ? "bg-green-700" : "bg-white"
-                  }`}
-                />
-              </Link>
-            ))}
+      <div className="flex items-center gap-5 text-sm">
+        <Link href="/track-order" className="hover:text-green-200 transition">
+          Track Order
+        </Link>
+        <Link href="/contact" className="hover:text-green-200 transition">
+          Support
+        </Link>
+        <Link href="/b2b" className="hover:text-green-200 transition">
+          Bulk Orders
+        </Link>
+      </div>
+    </div>
+  </div>
+
+  {/* MAIN HEADER */}
+  <div
+    className={`transition-all duration-500 ${
+      scrolled
+        ? "bg-white/95 backdrop-blur-xl shadow-2xl border-b border-gray-100"
+        : "bg-white/85 backdrop-blur-lg shadow-xl"
+    }`}
+  >
+    <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="h-[96px] flex items-center justify-between">
+
+        {/* LOGO */}
+        <Link href="/" className="group flex items-center gap-4">
+          <div className="relative h-[72px] w-[150px] lg:h-[82px] lg:w-[180px]">
+            <Image
+              src="/Logo1.png"
+              alt="Kopahi Logo"
+              fill
+              priority
+              className="object-contain transition-transform duration-500 group-hover:scale-105"
+            />
           </div>
 
-          <div className="hidden lg:flex items-center gap-3">
-            <Link
-              href="/login"
-              className={`text-sm font-medium transition-all duration-500 ${
-                scrolled
-                  ? "text-gray-700 hover:text-green-700"
-                  : "text-white hover:text-green-200 drop-shadow-lg"
-              }`}
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className={`group px-5 py-2.5 rounded-lg transition-all duration-500 text-sm font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 inline-flex items-center gap-1.5 ${
-                scrolled
-                  ? "bg-green-700 text-white hover:bg-green-800"
-                  : "bg-white text-green-800 hover:bg-green-50"
-              }`}
-            >
-              Sign Up
-              <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
+          <div className="hidden xl:block">
+            <p className="text-[11px] uppercase tracking-[0.35em] text-green-700 font-semibold">
+              Truly Indigenous
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Assam Farms To Your Home
+            </p>
           </div>
+        </Link>
 
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className={`lg:hidden p-2 transition-all duration-500 ${
-              scrolled ? "text-gray-700" : "text-white drop-shadow-lg"
-            }`}
-            aria-label="Toggle menu"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {mobileOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
+        {/* DESKTOP MENU */}
+        <div className="hidden lg:flex items-center gap-10">
+          {navLinks.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="relative text-[15px] font-semibold text-gray-700 hover:text-green-700 transition group"
+            >
+              {item.label}
+              <span className="absolute left-0 -bottom-2 h-[2px] w-0 bg-green-700 transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+          ))}
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="hidden lg:flex items-center gap-3">
+
+          {/* SEARCH */}
+          <button className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-green-50 hover:border-green-200 transition flex items-center justify-center shadow-sm">
+            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.3-4.3m1.3-5.2a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
             </svg>
+          </button>
+
+          {/* LOGIN */}
+          <Link
+            href="/login"
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-100 transition"
+          >
+            Login
+          </Link>
+
+          {/* SIGNUP */}
+          <Link
+            href="/signup"
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-green-700 to-green-600 text-white text-sm font-bold shadow-lg hover:shadow-2xl hover:-translate-y-0.5 transition-all"
+          >
+            Sign Up
+          </Link>
+
+          {/* CART */}
+          <button className="relative w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-green-50 transition flex items-center justify-center shadow-sm">
+            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l1 5h13l2-5h-15zm3 8h12l-1 6H7l-1-6zm3 9a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z" />
+            </svg>
+
+            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-green-700 text-white text-[10px] font-bold flex items-center justify-center">
+              0
+            </span>
           </button>
         </div>
 
-        {mobileOpen && (
-          <div className="lg:hidden border-t border-gray-100 bg-white shadow-xl">
-            <div className="px-6 py-4 flex flex-col gap-3">
-              {navLinks.map((l) => (
-                <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="py-2 text-gray-700 hover:text-green-700">
-                  {l.label}
-                </Link>
-              ))}
-              <div className="flex gap-3 pt-3 border-t border-gray-100">
-                <Link href="/login" className="flex-1 text-center py-2.5 border border-gray-200 rounded-lg">Login</Link>
-                <Link href="/signup" className="flex-1 text-center py-2.5 bg-green-700 text-white rounded-lg">Sign Up</Link>
-              </div>
-            </div>
+        {/* MOBILE MENU BUTTON */}
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="lg:hidden w-11 h-11 rounded-xl border border-gray-200 bg-white flex items-center justify-center shadow-sm"
+        >
+          <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {mobileOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    {/* MOBILE MENU */}
+    {mobileOpen && (
+      <div className="lg:hidden border-t border-gray-100 bg-white shadow-xl">
+        <div className="px-6 py-6 flex flex-col gap-4">
+
+          {navLinks.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setMobileOpen(false)}
+              className="text-gray-700 font-semibold py-2 border-b border-gray-100 hover:text-green-700"
+            >
+              {item.label}
+            </Link>
+          ))}
+
+          <div className="grid grid-cols-2 gap-3 pt-4">
+            <Link
+              href="/login"
+              className="text-center py-3 rounded-xl border border-gray-200 font-semibold"
+            >
+              Login
+            </Link>
+
+            <Link
+              href="/signup"
+              className="text-center py-3 rounded-xl bg-green-700 text-white font-semibold"
+            >
+              Sign Up
+            </Link>
           </div>
-        )}
-      </nav>
+        </div>
+      </div>
+    )}
+  </div>
+</nav>
 
       {/* ================= HERO ================= */}
       <section className="relative h-screen min-h-[640px] overflow-hidden -mt-20">
