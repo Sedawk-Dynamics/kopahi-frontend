@@ -8,7 +8,8 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    // Switch to dark text once user scrolls past the hero section
+    const onScroll = () => setScrolled(window.scrollY > 600);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -39,7 +40,6 @@ export default function Home() {
 
   return (
     <main className="bg-white text-gray-900 antialiased">
-      {/* Custom animations */}
       <style jsx global>{`
         @keyframes scroll-x {
           from { transform: translateX(0); }
@@ -49,17 +49,13 @@ export default function Home() {
           animation: scroll-x 45s linear infinite;
           width: max-content;
         }
-        .marquee-track:hover {
-          animation-play-state: paused;
-        }
+        .marquee-track:hover { animation-play-state: paused; }
 
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(24px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        .reveal {
-          animation: fadeUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
-        }
+        .reveal { animation: fadeUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
 
         @keyframes float {
           0%, 100% { transform: translateY(0); }
@@ -74,31 +70,19 @@ export default function Home() {
         }
       `}</style>
 
-{/* ================= NAVBAR ================= */}
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? "bg-white/95 backdrop-blur-md shadow-sm"
-            : "bg-transparent"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-3 flex justify-between items-center">
+      {/* ================= NAVBAR (always transparent + smart text color) ================= */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group" aria-label="Kopahi home">
-            <Image
-              src="/logo1.png"
-              alt="Kopahi logo"
-              width={120}
-              height={120}
-              priority
-              className="h-14 w-14 lg:h-16 lg:w-16 object-contain transition-transform group-hover:scale-105 drop-shadow-lg"
-            />
-            <span
-              className={`text-2xl lg:text-3xl font-bold tracking-tight transition-colors duration-300 ${
-                scrolled ? "text-green-700" : "text-white drop-shadow-lg"
-              }`}
-            >
-              Kopahi<span className={scrolled ? "text-green-500" : "text-green-300"}>.</span>
-            </span>
+            <div className="relative h-16 w-16 lg:h-[180px] lg:w-[180px]">
+              <Image
+                src="/logo1.png"
+                alt="Kopahi logo"
+                fill
+                priority
+                className="object-contain transition-transform group-hover:scale-105 drop-shadow-lg"
+              />
+            </div>
           </Link>
 
           <div className="hidden lg:flex gap-8 font-medium text-sm items-center">
@@ -106,10 +90,10 @@ export default function Home() {
               <Link
                 key={l.href}
                 href={l.href}
-                className={`transition-colors relative group ${
+                className={`transition-all duration-500 relative group ${
                   scrolled
                     ? "text-gray-700 hover:text-green-700"
-                    : "text-white/95 hover:text-white drop-shadow-md"
+                    : "text-white hover:text-green-200 drop-shadow-lg"
                 }`}
               >
                 {l.label}
@@ -125,27 +109,34 @@ export default function Home() {
           <div className="hidden lg:flex items-center gap-3">
             <Link
               href="/login"
-              className={`text-sm font-medium transition-colors ${
-                scrolled ? "text-gray-700 hover:text-green-700" : "text-white hover:text-green-200 drop-shadow-md"
+              className={`text-sm font-medium transition-all duration-500 ${
+                scrolled
+                  ? "text-gray-700 hover:text-green-700"
+                  : "text-white hover:text-green-200 drop-shadow-lg"
               }`}
             >
               Login
             </Link>
             <Link
               href="/signup"
-              className={`px-5 py-2.5 rounded-lg transition-all text-sm font-medium shadow-lg ${
+              className={`group px-5 py-2.5 rounded-lg transition-all duration-500 text-sm font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 inline-flex items-center gap-1.5 ${
                 scrolled
                   ? "bg-green-700 text-white hover:bg-green-800"
                   : "bg-white text-green-800 hover:bg-green-50"
               }`}
             >
               Sign Up
+              <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
             </Link>
           </div>
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className={`lg:hidden p-2 transition-colors ${scrolled ? "text-gray-700" : "text-white drop-shadow-lg"}`}
+            className={`lg:hidden p-2 transition-all duration-500 ${
+              scrolled ? "text-gray-700" : "text-white drop-shadow-lg"
+            }`}
             aria-label="Toggle menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,15 +150,10 @@ export default function Home() {
         </div>
 
         {mobileOpen && (
-          <div className="lg:hidden border-t border-gray-100 bg-white shadow-lg">
+          <div className="lg:hidden border-t border-gray-100 bg-white shadow-xl">
             <div className="px-6 py-4 flex flex-col gap-3">
               {navLinks.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="py-2 text-gray-700 hover:text-green-700"
-                >
+                <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="py-2 text-gray-700 hover:text-green-700">
                   {l.label}
                 </Link>
               ))}
@@ -181,7 +167,7 @@ export default function Home() {
       </nav>
 
       {/* ================= HERO ================= */}
-      <section className="relative h-screen min-h-[640px] overflow-hidden">
+      <section className="relative h-screen min-h-[640px] overflow-hidden -mt-20">
         <video autoPlay muted loop playsInline poster="/hero-poster.jpg" className="absolute inset-0 w-full h-full object-cover">
           <source src="/farmer.mp4" type="video/mp4" />
         </video>
@@ -462,34 +448,61 @@ export default function Home() {
       <footer className="bg-[#0a0f0c] text-gray-300 pt-20 pb-8 px-6 lg:px-8 relative">
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-green-500/40 to-transparent"></div>
 
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-12">
-            <div className="col-span-2">
-              <div className="flex items-center gap-2 mb-4">
-                <Image src="/logo1.png" alt="Kopahi logo" width={80} height={80} className="h-10 w-10 object-contain" />
-                <h2 className="text-3xl font-bold text-green-400 tracking-tight">
-                  Kopahi<span className="text-green-300">.</span>
-                </h2>
-              </div>
-              <p className="text-gray-400 leading-relaxed mb-6 max-w-xs">
-                Premium agri-marketplace of North East India — connecting growers with conscious buyers across the country.
-              </p>
+<div className="max-w-7xl mx-auto">
+  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-12">
 
-              <div className="flex gap-3">
-                {[
-                  { label: "Instagram", path: "M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" },
-                  { label: "Facebook", path: "M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" },
-                  { label: "Twitter", path: "M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z" },
-                ].map((s) => (
-                  <a key={s.label} href="#" aria-label={s.label} className="w-10 h-10 rounded-full bg-white/5 hover:bg-green-600 flex items-center justify-center transition-colors">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d={s.path} />
-                    </svg>
-                  </a>
-                ))}
-              </div>
-            </div>
+    <div className="col-span-2">
+      <div className="flex items-center gap-3 mb-4">
 
+        {/* FIXED LOGO */}
+        <div className="relative h-14 w-14 shrink-0">
+          <Image
+            src="/logo1.png"
+            alt="Kopahi logo"
+            fill
+            sizes="56px"
+            priority
+            className="object-contain"
+          />
+        </div>
+
+        <h2 className="text-3xl font-bold text-green-400 tracking-tight">
+          Kopahi<span className="text-green-300">.</span>
+        </h2>
+      </div>
+
+      <p className="text-gray-400 leading-relaxed mb-6 max-w-xs">
+        Premium agri-marketplace of North East India — connecting growers with conscious buyers across the country.
+      </p>
+
+      <div className="flex gap-3">
+        {[
+          {
+            label: "Instagram",
+            path: "M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
+          },
+          {
+            label: "Facebook",
+            path: "M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"
+          },
+          {
+            label: "Twitter",
+            path: "M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"
+          }
+        ].map((s) => (
+          <a
+            key={s.label}
+            href="#"
+            aria-label={s.label}
+            className="w-10 h-10 rounded-full bg-white/5 hover:bg-green-600 flex items-center justify-center transition-colors duration-300"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d={s.path} />
+            </svg>
+          </a>
+        ))}
+      </div>
+    </div>
             <div>
               <h3 className="text-white font-semibold mb-5 text-sm uppercase tracking-wider">Quick Links</h3>
               <ul className="space-y-3 text-sm">
