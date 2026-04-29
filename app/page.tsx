@@ -116,7 +116,7 @@ export default function Home() {
               />
             </div>
           </Link>
-          // Desktop nav links
+        
 
           <div className="hidden lg:flex gap-8 font-medium text-sm items-center">
             {navLinks.map((l) => (
