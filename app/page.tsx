@@ -6,6 +6,12 @@ import { useState, useEffect } from "react";
 export default function Home() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+  const [newsletterMessage, setNewsletterMessage] = useState("");
 
   useEffect(() => {
     // Switch to dark text once user scrolls past the hero section
@@ -13,6 +19,32 @@ export default function Home() {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const toggleWishlist = (key: string) => {
+    setWishlist((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = newsletterEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setNewsletterStatus("error");
+      setNewsletterMessage("Please enter a valid email address.");
+      return;
+    }
+    setNewsletterStatus("loading");
+    setNewsletterMessage("");
+    // TODO: wire to real /api/newsletter endpoint when available
+    await new Promise((r) => setTimeout(r, 700));
+    setNewsletterStatus("success");
+    setNewsletterMessage("You're in! Check your inbox for a 10% off code.");
+    setNewsletterEmail("");
+  };
 
   const products = [
     { name: "Assam Tea", price: "₹499", oldPrice: "₹599", tag: "Bestseller", img: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&q=80", rating: 4.9 },
@@ -76,7 +108,7 @@ export default function Home() {
           <Link href="/" className="flex items-center gap-2 group" aria-label="Kopahi home">
             <div className="relative h-16 w-16 lg:h-[180px] lg:w-[180px]">
               <Image
-                src="/logo1.png"
+                src="/Logo1.png"
                 alt="Kopahi logo"
                 fill
                 priority
@@ -84,6 +116,7 @@ export default function Home() {
               />
             </div>
           </Link>
+          // Desktop nav links
 
           <div className="hidden lg:flex gap-8 font-medium text-sm items-center">
             {navLinks.map((l) => (
@@ -290,8 +323,29 @@ export default function Home() {
                       {item.tag}
                     </span>
                   )}
-                  <button aria-label="Add to wishlist" className="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white">
-                    <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleWishlist(item.name);
+                    }}
+                    aria-pressed={wishlist.has(item.name)}
+                    aria-label={
+                      wishlist.has(item.name)
+                        ? `Remove ${item.name} from wishlist`
+                        : `Add ${item.name} to wishlist`
+                    }
+                    className="absolute top-3 right-3 w-9 h-9 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                  >
+                    <svg
+                      className={`w-4 h-4 transition-colors ${
+                        wishlist.has(item.name) ? "text-red-500" : "text-gray-700"
+                      }`}
+                      fill={wishlist.has(item.name) ? "currentColor" : "none"}
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                   </button>
@@ -433,13 +487,72 @@ export default function Home() {
               Get 10% off your first order, exclusive farmer stories, and early access to new harvests.
             </p>
 
-            <form onSubmit={(e) => e.preventDefault()} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input type="email" placeholder="your@email.com" className="flex-1 px-5 py-3.5 rounded-xl text-gray-900 bg-white/95 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-300" aria-label="Email address" />
-              <button type="submit" className="bg-white text-green-800 hover:bg-green-50 px-7 py-3.5 rounded-xl font-semibold transition-colors whitespace-nowrap">
-                Subscribe
+            <form
+              onSubmit={handleNewsletterSubmit}
+              noValidate
+              aria-describedby="newsletter-status"
+              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+            >
+              <input
+                type="email"
+                value={newsletterEmail}
+                onChange={(e) => {
+                  setNewsletterEmail(e.target.value);
+                  if (newsletterStatus !== "idle") {
+                    setNewsletterStatus("idle");
+                    setNewsletterMessage("");
+                  }
+                }}
+                placeholder="your@email.com"
+                autoComplete="email"
+                disabled={newsletterStatus === "loading" || newsletterStatus === "success"}
+                aria-invalid={newsletterStatus === "error"}
+                aria-label="Email address"
+                className={`flex-1 px-5 py-3.5 rounded-xl text-gray-900 bg-white/95 placeholder:text-gray-500 focus:outline-none focus:ring-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed ${
+                  newsletterStatus === "error"
+                    ? "ring-2 ring-red-300 focus:ring-red-400"
+                    : "focus:ring-green-300"
+                }`}
+              />
+              <button
+                type="submit"
+                disabled={newsletterStatus === "loading" || newsletterStatus === "success"}
+                className="bg-white text-green-800 hover:bg-green-50 px-7 py-3.5 rounded-xl font-semibold transition-colors whitespace-nowrap inline-flex items-center justify-center gap-2 disabled:opacity-80 disabled:cursor-not-allowed"
+              >
+                {newsletterStatus === "loading" ? (
+                  <>
+                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Subscribing…
+                  </>
+                ) : newsletterStatus === "success" ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Subscribed
+                  </>
+                ) : (
+                  "Subscribe"
+                )}
               </button>
             </form>
-            <p className="text-xs text-green-200 mt-4">No spam. Unsubscribe anytime.</p>
+            <p
+              id="newsletter-status"
+              role="status"
+              aria-live="polite"
+              className={`text-xs mt-4 min-h-[1rem] ${
+                newsletterStatus === "error"
+                  ? "text-red-200"
+                  : newsletterStatus === "success"
+                  ? "text-green-100 font-medium"
+                  : "text-green-200"
+              }`}
+            >
+              {newsletterMessage || "No spam. Unsubscribe anytime."}
+            </p>
           </div>
         </div>
       </section>
@@ -457,7 +570,7 @@ export default function Home() {
         {/* FIXED LOGO */}
         <div className="relative h-14 w-14 shrink-0">
           <Image
-            src="/logo1.png"
+            src="/Logo1.png"
             alt="Kopahi logo"
             fill
             sizes="56px"
@@ -479,24 +592,29 @@ export default function Home() {
         {[
           {
             label: "Instagram",
+            href: "https://instagram.com/kopahi",
             path: "M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
           },
           {
             label: "Facebook",
+            href: "https://facebook.com/kopahi",
             path: "M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"
           },
           {
             label: "Twitter",
+            href: "https://twitter.com/kopahi",
             path: "M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"
           }
         ].map((s) => (
           <a
             key={s.label}
-            href="#"
-            aria-label={s.label}
-            className="w-10 h-10 rounded-full bg-white/5 hover:bg-green-600 flex items-center justify-center transition-colors duration-300"
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${s.label} (opens in a new tab)`}
+            className="w-10 h-10 rounded-full bg-white/5 hover:bg-green-600 flex items-center justify-center transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f0c]"
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path d={s.path} />
             </svg>
           </a>
