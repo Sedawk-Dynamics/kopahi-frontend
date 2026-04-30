@@ -2,9 +2,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { ApiError } from "../lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,6 +16,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [loadingRole, setLoadingRole] = useState<string | null>(null);
   const [error, setError] = useState("");
+
+  const redirectFor = (role?: string) => {
+    if (role === "admin") return "/admin";
+    if (role === "vendor") return "/vendor";
+    return "/dashboard";
+  };
 
   const demoRoles = [
     {
@@ -49,24 +58,32 @@ export default function LoginPage() {
     }
 
     setLoading(true);
-
-    // TODO: replace with your real auth call
-    // e.g. const res = await signIn("credentials", { email, password, redirect: false });
-    setTimeout(() => {
-      const matched = demoRoles.find((r) => r.email === email.toLowerCase());
-      router.push(matched?.redirect || "/dashboard");
-    }, 800);
+    try {
+      const user = await login(email, password);
+      router.push(redirectFor(user.role));
+    } catch (err) {
+      const msg =
+        err instanceof ApiError ? err.message : "Login failed. Please try again.";
+      setError(msg);
+      setLoading(false);
+    }
   };
 
-  const handleDemoLogin = (role: typeof demoRoles[0]) => {
+  const handleDemoLogin = async (role: typeof demoRoles[0]) => {
     setEmail(role.email);
     setPassword("demo1234");
     setError("");
     setLoadingRole(role.label);
 
-    setTimeout(() => {
-      router.push(role.redirect);
-    }, 600);
+    try {
+      const user = await login(role.email, "demo1234");
+      router.push(redirectFor(user.role));
+    } catch (err) {
+      const msg =
+        err instanceof ApiError ? err.message : "Demo login failed. Run npm run seed in the backend first.";
+      setError(msg);
+      setLoadingRole(null);
+    }
   };
 
   return (

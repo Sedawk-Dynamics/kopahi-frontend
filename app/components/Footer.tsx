@@ -21,11 +21,11 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0a0f0c] text-gray-300 pt-20 pb-8 px-6 lg:px-8 relative">
+    <footer className="bg-[#0a0f0c] text-gray-300 pt-14 sm:pt-20 pb-8 px-5 sm:px-6 lg:px-8 relative">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-green-500/40 to-transparent"></div>
 
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 sm:gap-10 mb-10 sm:mb-12">
 
           <div className="col-span-2">
             <div className="flex items-center gap-3 mb-4">

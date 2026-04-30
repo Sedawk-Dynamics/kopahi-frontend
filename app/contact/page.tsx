@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import Footer from "../components/Footer";
+import { api, ApiError } from "../lib/api";
 
 export default function ContactPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -34,10 +35,24 @@ export default function ContactPage() {
     }
     setStatus("loading");
     setStatusMessage("");
-    await new Promise((r) => setTimeout(r, 800));
-    setStatus("success");
-    setStatusMessage("Thanks! We'll get back to you within 24 hours.");
-    setForm({ name: "", email: "", subject: "", message: "" });
+    try {
+      await api.post("/api/contact", {
+        name: form.name,
+        email: form.email,
+        subject: form.subject,
+        message: form.message,
+      });
+      setStatus("success");
+      setStatusMessage("Thanks! We'll get back to you within 24 hours.");
+      setForm({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      setStatus("error");
+      setStatusMessage(
+        err instanceof ApiError
+          ? err.message
+          : "Could not submit your message. Please try again."
+      );
+    }
   };
 
   const navLinks = [

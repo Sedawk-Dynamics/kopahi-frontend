@@ -103,12 +103,12 @@ export default function Home() {
         }
       `}</style>
 
-{/* ================= PREMIUM HEADER - REPLACE ONLY YOUR <nav> SECTION WITH THIS ================= */}
+{/* ================= PREMIUM HEADER ================= */}
 <nav className="fixed top-0 left-0 right-0 z-50">
-  {/* TOP BAR */}
-  <div className="bg-gradient-to-r from-green-900 via-green-800 to-green-900 text-white text-[13px] tracking-wide">
-    <div className="max-w-7xl mx-auto px-6 lg:px-8 h-10 flex items-center justify-between">
-      <p className="hidden md:block font-medium">
+  {/* TOP BAR - hidden on small screens to save vertical space */}
+  <div className="hidden md:block bg-gradient-to-r from-green-900 via-green-800 to-green-900 text-white text-[13px] tracking-wide">
+    <div className="max-w-7xl mx-auto px-6 lg:px-8 h-9 lg:h-10 flex items-center justify-between">
+      <p className="font-medium">
         Open Doors To A World Of Indigenous Food
       </p>
 
@@ -134,17 +134,17 @@ export default function Home() {
         : "bg-white/85 backdrop-blur-lg shadow-xl"
     }`}
   >
-    <div className="max-w-7xl mx-auto px-6 lg:px-8">
-      <div className="h-[96px] flex items-center justify-between">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="h-16 sm:h-20 lg:h-[88px] flex items-center justify-between">
 
         {/* LOGO */}
-        <Link href="/" className="group flex items-center gap-4">
-          <div className="relative h-[72px] w-[150px] lg:h-[82px] lg:w-[180px]">
+        <Link href="/" className="group flex items-center gap-3 sm:gap-4">
+          <div className="relative h-12 w-[110px] sm:h-14 sm:w-[130px] lg:h-[72px] lg:w-[170px]">
             <Image
               src="/Logo1.png"
               alt="Kopahi Logo"
               fill
-              sizes="180px"
+              sizes="(max-width:640px) 110px, (max-width:1024px) 130px, 170px"
               priority
               className="object-contain transition-transform duration-500 group-hover:scale-105"
             />
@@ -220,19 +220,34 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* MOBILE MENU BUTTON */}
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="lg:hidden w-11 h-11 rounded-xl border border-gray-200 bg-white flex items-center justify-center shadow-sm"
-        >
-          <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {mobileOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
+        {/* MOBILE: cart + menu */}
+        <div className="lg:hidden flex items-center gap-2">
+          <Link
+            href="/cart"
+            aria-label="View cart"
+            className="relative w-10 h-10 rounded-xl border border-gray-200 bg-white flex items-center justify-center shadow-sm"
+          >
+            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l1 5h13l2-5h-15zm3 8h12l-1 6H7l-1-6zm3 9a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z" />
+            </svg>
+            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-700 text-white text-[10px] font-bold flex items-center justify-center">
+              3
+            </span>
+          </Link>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+            className="w-10 h-10 rounded-xl border border-gray-200 bg-white flex items-center justify-center shadow-sm"
+          >
+            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -274,38 +289,47 @@ export default function Home() {
 </nav>
 
       {/* ================= HERO ================= */}
-      <section className="relative h-screen min-h-[680px] overflow-hidden mt-[136px]">
-        <video autoPlay muted loop playsInline poster="/hero-poster.jpg" className="absolute inset-0 w-full h-full object-cover">
+      <section className="relative min-h-[100svh] overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster="/hero-poster.jpg"
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover"
+        >
           <source src="/farmer.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/55 to-black/70"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/55 to-black/75"></div>
 
-        <div className="relative z-10 h-full flex items-center justify-center text-center px-6 pt-[136px] pb-12">
+        <div className="relative z-10 min-h-[100svh] flex items-center justify-center text-center px-5 sm:px-6 pt-24 sm:pt-28 lg:pt-36 pb-16 sm:pb-20">
           <div className="max-w-4xl text-white reveal">
-            <p className="text-green-300 font-semibold text-sm md:text-base mb-5 uppercase tracking-[0.25em]">
+            <p className="text-green-300 font-semibold text-xs sm:text-sm md:text-base mb-4 sm:mb-5 uppercase tracking-[0.22em] sm:tracking-[0.25em]">
               Farmer Stories of Assam
             </p>
-            <h1 className="text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight">
+            <h1 className="text-[2.25rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
               From Assam Farms
               <span className="block text-green-400 mt-2">To Your Home</span>
             </h1>
-            <p className="mt-7 text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mx-auto">
+            <p className="mt-5 sm:mt-7 text-base sm:text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mx-auto">
               Authentic tea, honey, black rice and spices sourced directly from trusted farmers across North East India.
             </p>
 
-            <div className="mt-10 flex gap-4 justify-center flex-wrap">
-              <Link href="/products" className="group bg-green-600 hover:bg-green-700 px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl hover:-translate-y-0.5 font-medium inline-flex items-center gap-2">
+            <div className="mt-7 sm:mt-10 flex gap-3 sm:gap-4 justify-center flex-wrap">
+              <Link href="/products" className="group bg-green-600 hover:bg-green-700 px-6 sm:px-8 py-3 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-2xl hover:-translate-y-0.5 font-medium inline-flex items-center gap-2 text-sm sm:text-base">
                 Shop Now
                 <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
-              <Link href="/join" className="border-2 border-white/80 backdrop-blur-sm bg-white/5 px-8 py-4 rounded-xl hover:bg-white hover:text-black transition-all font-medium">
+              <Link href="/join" className="border-2 border-white/80 backdrop-blur-sm bg-white/5 px-6 sm:px-8 py-3 sm:py-4 rounded-xl hover:bg-white hover:text-black transition-all font-medium text-sm sm:text-base">
                 Become a Vendor
               </Link>
             </div>
 
-            <div className="mt-14 flex flex-wrap justify-center gap-6 text-xs text-white/80">
+            <div className="mt-10 sm:mt-14 flex flex-wrap justify-center gap-x-5 gap-y-3 sm:gap-6 text-[11px] sm:text-xs text-white/80">
               {["FSSAI Certified", "GI Tagged Products", "Direct Farmer Payout"].map((label) => (
                 <div key={label} className="flex items-center gap-2">
                   <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
@@ -318,7 +342,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 hidden md:block">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 hidden md:block">
           <div className="float-slow w-6 h-10 border-2 border-white/60 rounded-full flex justify-center pt-2">
             <div className="w-1 h-2 bg-white/80 rounded-full"></div>
           </div>
@@ -326,13 +350,13 @@ export default function Home() {
       </section>
 
       {/* ================= STATS ================= */}
-      <section className="bg-gradient-to-br from-green-700 to-green-800 text-white py-16 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-green-700 to-green-800 text-white py-12 sm:py-16 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-1/4 w-64 h-64 bg-white rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-green-300 rounded-full blur-3xl"></div>
         </div>
 
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 px-8 relative z-10">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 px-5 sm:px-8 relative z-10">
           {[
             { num: "500+", label: "Verified Farmers", icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" },
             { num: "120+", label: "Premium Products", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
@@ -345,39 +369,39 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={s.icon} />
                 </svg>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">{s.num}</h2>
-              <p className="text-green-100 mt-1 text-sm md:text-base">{s.label}</p>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">{s.num}</h2>
+              <p className="text-green-100 mt-1 text-xs sm:text-sm md:text-base">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ================= SOURCING MAP ================= */}
-      <section className="py-24 px-6 lg:px-8 bg-white">
+      <section className="py-16 sm:py-20 md:py-24 px-5 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto text-center">
           <span className="inline-block px-4 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
             Our Network
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold mb-5 tracking-tight">Ingredient Sourcing Network</h2>
-          <p className="text-gray-600 mb-12 max-w-2xl mx-auto text-lg leading-relaxed">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-5 tracking-tight">Ingredient Sourcing Network</h2>
+          <p className="text-gray-600 mb-10 sm:mb-12 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
             Premium ingredients sourced directly from Assam and North East India through verified farmers and regional producer collectives.
           </p>
 
-          <div className="bg-gradient-to-br from-gray-50 to-green-50 p-4 md:p-6 rounded-3xl shadow-xl border border-green-100">
+          <div className="bg-gradient-to-br from-gray-50 to-green-50 p-3 sm:p-4 md:p-6 rounded-3xl shadow-xl border border-green-100">
             <img src="/map.png" alt="Kopahi sourcing map showing farmer networks across North East India" className="w-full rounded-2xl object-cover" />
           </div>
         </div>
       </section>
 
       {/* ================= PRODUCTS ================= */}
-      <section className="py-24 px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-16 sm:py-20 md:py-24 px-5 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-4">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 sm:mb-12 gap-4">
             <div>
               <span className="inline-block px-4 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
                 Featured
               </span>
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Handpicked Products</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">Handpicked Products</h2>
             </div>
             <Link href="/products" className="text-green-700 font-semibold hover:text-green-800 inline-flex items-center gap-2 group">
               View All Products
@@ -387,7 +411,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-7">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 md:gap-7">
             {products.map((item, i) => (
               <div key={i} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 border border-gray-100">
                 <div className="relative overflow-hidden aspect-square bg-gray-100">
@@ -451,21 +475,21 @@ export default function Home() {
       </section>
 
       {/* ================= WHY CHOOSE KOPAHI ================= */}
-      <section className="py-24 px-6 lg:px-8 bg-white">
+      <section className="py-16 sm:py-20 md:py-24 px-5 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12 sm:mb-16">
             <span className="inline-block px-4 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
               Why Kopahi
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
               Why Choose <span className="text-green-700">Kopahi?</span>
             </h2>
-            <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-lg">
+            <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-base sm:text-lg">
               We bridge the gap between North East farmers and conscious consumers.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6 md:gap-8">
             {[
               {
                 icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 21V8a5 5 0 0110 0v13m-10 0h10m-10 0H1m12 0h10m-10 0V11a4 4 0 014-4h2a4 4 0 014 4v10" /></svg>,
@@ -483,12 +507,12 @@ export default function Home() {
                 desc: "Pan-India shipping with premium packaging — your order tracked end to end.",
               },
             ].map((f, i) => (
-              <div key={i} className="group bg-white rounded-3xl p-8 md:p-10 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 border border-gray-100 hover:border-green-200">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-green-50 text-green-700 mb-6 group-hover:bg-green-700 group-hover:text-white transition-colors">
+              <div key={i} className="group bg-white rounded-3xl p-6 sm:p-8 md:p-10 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 border border-gray-100 hover:border-green-200">
+                <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-green-50 text-green-700 mb-5 sm:mb-6 group-hover:bg-green-700 group-hover:text-white transition-colors">
                   {f.icon}
                 </div>
-                <h3 className="text-2xl font-bold mb-3 tracking-tight">{f.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{f.desc}</p>
+                <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 tracking-tight">{f.title}</h3>
+                <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -496,27 +520,27 @@ export default function Home() {
       </section>
 
       {/* ================= REVIEWS ================= */}
-      <section className="py-24 bg-gradient-to-br from-green-50 via-white to-green-50/40 relative overflow-hidden">
+      <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-green-50 via-white to-green-50/40 relative overflow-hidden">
         <div className="absolute top-20 -right-20 w-80 h-80 bg-green-200/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 -left-20 w-80 h-80 bg-green-100/40 rounded-full blur-3xl"></div>
 
-        <div className="text-center mb-16 relative z-10 px-6">
+        <div className="text-center mb-12 sm:mb-16 relative z-10 px-5 sm:px-6">
           <span className="inline-block px-4 py-1.5 bg-white text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 shadow-sm">
             Verified Reviews
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
             What Customers Say <span className="text-green-600">💚</span>
           </h2>
-          <p className="text-gray-600 mt-4 max-w-xl mx-auto">Real stories from buyers who trust Kopahi for authentic produce.</p>
+          <p className="text-gray-600 mt-4 max-w-xl mx-auto text-sm sm:text-base">Real stories from buyers who trust Kopahi for authentic produce.</p>
         </div>
 
         <div className="relative overflow-hidden py-4">
           <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-green-50 to-transparent z-10 pointer-events-none"></div>
           <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-green-50 to-transparent z-10 pointer-events-none"></div>
 
-          <div className="marquee-track flex gap-6 px-6">
+          <div className="marquee-track flex gap-4 sm:gap-6 px-5 sm:px-6">
             {[...reviews, ...reviews].map((item, i) => (
-              <div key={i} className="w-[340px] md:w-[380px] flex-shrink-0 bg-white p-7 rounded-2xl shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 relative">
+              <div key={i} className="w-[280px] sm:w-[340px] md:w-[380px] flex-shrink-0 bg-white p-5 sm:p-7 rounded-2xl shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 relative">
                 <div className="absolute top-4 right-5 text-6xl text-green-100 font-serif leading-none select-none pointer-events-none">"</div>
 
                 <div className="flex gap-0.5 mb-4 relative z-10">
@@ -527,7 +551,7 @@ export default function Home() {
                   ))}
                 </div>
 
-                <p className="text-gray-800 leading-relaxed mb-6 whitespace-normal min-h-[80px]">"{item.text}"</p>
+                <p className="text-gray-800 leading-relaxed mb-5 sm:mb-6 whitespace-normal min-h-[72px] sm:min-h-[80px] text-sm sm:text-base">"{item.text}"</p>
 
                 <div className="border-t border-gray-100 pt-4 flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-white font-bold">
@@ -550,14 +574,14 @@ export default function Home() {
       </section>
 
       {/* ================= NEWSLETTER CTA ================= */}
-      <section className="py-20 px-6 lg:px-8 bg-white">
-        <div className="max-w-5xl mx-auto bg-gradient-to-br from-green-700 to-green-900 rounded-3xl p-10 md:p-16 text-white relative overflow-hidden">
+      <section className="py-14 sm:py-20 px-5 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-5xl mx-auto bg-gradient-to-br from-green-700 to-green-900 rounded-3xl p-7 sm:p-10 md:p-16 text-white relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/20 rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-green-400/10 rounded-full blur-3xl"></div>
 
           <div className="relative z-10 text-center max-w-2xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">Join the Kopahi Family</h2>
-            <p className="text-green-100 mb-8 text-lg">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 tracking-tight">Join the Kopahi Family</h2>
+            <p className="text-green-100 mb-6 sm:mb-8 text-base sm:text-lg">
               Get 10% off your first order, exclusive farmer stories, and early access to new harvests.
             </p>
 

@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { ApiError } from "../lib/api";
 
 /* ============================================================
    SIGNUP PAGE
@@ -13,10 +15,12 @@ type Role = "customer" | "vendor";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { register } = useAuth();
   const [role, setRole] = useState<Role>("customer");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState("");
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -48,18 +52,28 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError("");
     if (!validate()) return;
     setLoading(true);
 
-    // TODO: Replace with real API call
-    // await fetch("/api/signup", { method: "POST", body: JSON.stringify({ ...form, role }) });
-
-    setTimeout(() => {
+    try {
+      await register({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        phone: form.phone,
+        role: role === "vendor" ? "vendor" : "user",
+        businessName: role === "vendor" ? form.businessName : undefined,
+      });
+      router.push(role === "vendor" ? "/vendor" : "/dashboard");
+    } catch (err) {
+      const msg =
+        err instanceof ApiError
+          ? err.message
+          : "Could not create your account. Please try again.";
+      setSubmitError(msg);
       setLoading(false);
-      // Redirect based on role
-      if (role === "vendor") router.push("/vendor");
-      else router.push("/dashboard");
-    }, 1000);
+    }
   };
 
   // Password strength indicator
@@ -201,6 +215,11 @@ export default function SignupPage() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {submitError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg" role="alert">
+                  {submitError}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-1.5">Full Name</label>
                 <input

@@ -2,8 +2,15 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useRef, ReactNode } from "react";
+import { useAuth } from "../context/AuthContext";
 
 type Role = "Admin" | "Vendor" | "Customer";
+
+const rolePaths: Record<Role, { profile: string; settings: string; search: string }> = {
+  Admin: { profile: "/admin/profile", settings: "/admin/settings", search: "/admin/search" },
+  Vendor: { profile: "/vendor", settings: "/settings", search: "/vendor/products" },
+  Customer: { profile: "/dashboard/account", settings: "/settings", search: "/products" },
+};
 
 const navByRole: Record<Role, { label: string; icon: string; href: string }[]> = {
   Admin: [
@@ -41,6 +48,7 @@ const roleColors: Record<Role, string> = {
 export default function DashboardShell({ role, userName, userEmail, children }: { role: Role; userName?: string; userEmail?: string; children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -49,8 +57,18 @@ export default function DashboardShell({ role, userName, userEmail, children }: 
   const profileRef = useRef<HTMLDivElement>(null);
 
   const nav = navByRole[role];
-  const displayName = userName || `${role} User`;
-  const displayEmail = userEmail || `${role.toLowerCase()}@kopahi.com`;
+  const paths = rolePaths[role];
+  const displayName = userName || user?.name || `${role} User`;
+  const displayEmail = userEmail || user?.email || `${role.toLowerCase()}@kopahi.com`;
+
+  const isActive = (href: string) => {
+    if (!pathname) return false;
+    if (pathname === href) return true;
+    // Avoid Overview always-active: only match exactly for the role root
+    const roots = ["/admin", "/vendor", "/dashboard"];
+    if (roots.includes(href)) return false;
+    return pathname.startsWith(href);
+  };
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -69,12 +87,13 @@ export default function DashboardShell({ role, userName, userEmail, children }: 
 
   const handleSignOut = () => {
     setProfileOpen(false);
+    logout();
     router.push("/login");
   };
 
   const handleGlobalSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (globalSearch.trim()) router.push(`/admin/search?q=${encodeURIComponent(globalSearch)}`);
+    if (globalSearch.trim()) router.push(`${paths.search}?q=${encodeURIComponent(globalSearch)}`);
   };
 
   return (
@@ -89,14 +108,14 @@ export default function DashboardShell({ role, userName, userEmail, children }: 
 
         <nav className="p-4 space-y-1">
           {nav.map((item) => {
-            const isActive = pathname === item.href || (item.href !== "/admin" && pathname?.startsWith(item.href));
+            const active = isActive(item.href);
             return (
               <Link
                 key={item.label}
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive ? "bg-green-50 text-green-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  active ? "bg-green-50 text-green-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,8 +199,8 @@ export default function DashboardShell({ role, userName, userEmail, children }: 
                     <p className="text-xs text-gray-500">{displayEmail}</p>
                   </div>
                   <div className="p-1">
-                    <Link href="/admin/profile" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">Profile</Link>
-                    <Link href="/settings" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">Settings</Link>
+                    <Link href={paths.profile} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">Profile</Link>
+                    <Link href={paths.settings} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">Settings</Link>
                   </div>
                   <div className="border-t border-gray-100 p-1">
                     <button onClick={handleSignOut} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg">Sign out</button>

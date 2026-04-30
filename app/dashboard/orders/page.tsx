@@ -1,7 +1,18 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import DashboardShell, { StatusBadge } from "../../components/DashboardShell";
+import { useAuth } from "../../context/AuthContext";
+import { api } from "../../lib/api";
+
+type ApiOrder = {
+  _id: string;
+  items: { name: string; quantity: number; image?: string }[];
+  totalPrice: number;
+  orderStatus: string;
+  createdAt: string;
+};
 
 /* ============================================================
    CUSTOMER MY ORDERS
@@ -18,10 +29,36 @@ const orders = [
 ];
 
 export default function CustomerOrdersPage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [liveOrders, setLiveOrders] = useState<ApiOrder[] | null>(null);
+  const [fetchError, setFetchError] = useState("");
 
-  const filtered = orders.filter((o) => {
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) { router.replace("/login?next=/dashboard/orders"); return; }
+
+    api
+      .get<{ orders: ApiOrder[] }>("/api/orders/mine", { auth: true })
+      .then((res) => setLiveOrders(res.orders || []))
+      .catch((err) => setFetchError(err.message || "Could not load orders"));
+  }, [authLoading, user, router]);
+
+  const sourceOrders = liveOrders
+    ? liveOrders.map((o) => ({
+        id: o._id.slice(-6).toUpperCase(),
+        date: new Date(o.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+        product: o.items.map((i) => i.name).join(", ") || "—",
+        qty: o.items.reduce((s, i) => s + i.quantity, 0),
+        amount: `₹${o.totalPrice.toLocaleString("en-IN")}`,
+        status: o.orderStatus,
+        image: o.items[0]?.image || "https://placehold.co/200x200/14532d/ffffff?text=Kopahi",
+      }))
+    : orders;
+
+  const filtered = sourceOrders.filter((o) => {
     const matchSearch = o.id.toLowerCase().includes(search.toLowerCase()) || o.product.toLowerCase().includes(search.toLowerCase());
     const matchStatus = statusFilter === "All" || o.status === statusFilter;
     return matchSearch && matchStatus;
@@ -30,7 +67,7 @@ export default function CustomerOrdersPage() {
   const statuses = ["All", "Shipped", "Delivered", "Cancelled"];
 
   return (
-    <DashboardShell role="Customer" userName="Rahul Sharma" userEmail="rahul@example.com">
+    <DashboardShell role="Customer" userName={user?.name} userEmail={user?.email}>
       <div className="mb-6 md:mb-8">
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
           <Link href="/dashboard" className="hover:text-green-700">Dashboard</Link>
@@ -38,7 +75,8 @@ export default function CustomerOrdersPage() {
           <span className="text-gray-900 font-medium">My Orders</span>
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">My Orders</h1>
-        <p className="text-sm md:text-base text-gray-600 mt-1">{orders.length} total orders · {orders.filter(o => o.status === "Shipped").length} arriving soon</p>
+        <p className="text-sm md:text-base text-gray-600 mt-1">{sourceOrders.length} total orders · {sourceOrders.filter((o) => o.status === "Shipped").length} arriving soon</p>
+        {fetchError && <p className="text-xs text-red-600 mt-1">{fetchError}</p>}
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">

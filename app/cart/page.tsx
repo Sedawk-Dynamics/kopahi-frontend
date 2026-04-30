@@ -1,67 +1,34 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import PageShell from "../components/PageShell";
 import Footer from "../components/Footer";
-
-type Item = {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  qty: number;
-  image: string;
-};
-
-const initial: Item[] = [
-  {
-    id: 1,
-    name: "Assam Premium Tea",
-    category: "Tea",
-    price: 499,
-    qty: 1,
-    image: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400&q=80",
-  },
-  {
-    id: 2,
-    name: "Organic Black Rice",
-    category: "Rice",
-    price: 699,
-    qty: 1,
-    image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80",
-  },
-  {
-    id: 3,
-    name: "Wild Forest Honey",
-    category: "Honey",
-    price: 599,
-    qty: 2,
-    image: "https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=400&q=80",
-  },
-];
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 const SHIPPING_THRESHOLD = 999;
 const SHIPPING_FEE = 99;
 
 export default function CartPage() {
-  const [items, setItems] = useState<Item[]>(initial);
+  const router = useRouter();
+  const { items, setQuantity, remove, subtotal } = useCart();
+  const { user } = useAuth();
+
   const [coupon, setCoupon] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; pct: number } | null>(null);
   const [couponError, setCouponError] = useState("");
 
-  const subtotal = useMemo(() => items.reduce((s, i) => s + i.price * i.qty, 0), [items]);
   const discount = appliedCoupon ? Math.round((subtotal * appliedCoupon.pct) / 100) : 0;
   const shipping = subtotal === 0 || subtotal - discount >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
   const total = subtotal - discount + shipping;
 
-  const updateQty = (id: number, delta: number) => {
-    setItems((cur) =>
-      cur.map((it) => (it.id === id ? { ...it, qty: Math.max(1, Math.min(10, it.qty + delta)) } : it))
-    );
+  const updateQty = (id: string, delta: number) => {
+    const item = items.find((i) => i.productId === id);
+    if (!item) return;
+    setQuantity(id, item.quantity + delta);
   };
-
-  const remove = (id: number) => setItems((cur) => cur.filter((it) => it.id !== id));
 
   const applyCoupon = () => {
     const code = coupon.trim().toUpperCase();
@@ -77,6 +44,17 @@ export default function CartPage() {
       setCouponError("Invalid coupon code.");
     }
   };
+
+  const handleCheckout = () => {
+    if (items.length === 0) return;
+    if (!user) {
+      router.push("/login?next=/checkout");
+      return;
+    }
+    router.push("/checkout");
+  };
+
+  const cartIsFromBackend = items.length > 0 && !items[0].productId.startsWith("fallback-");
 
   return (
     <main className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
@@ -122,7 +100,7 @@ export default function CartPage() {
 
                   <ul className="divide-y divide-gray-100">
                     {items.map((it) => (
-                      <li key={it.id} className="p-6 md:p-7 flex gap-5">
+                      <li key={it.productId} className="p-6 md:p-7 flex gap-5">
                         <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden bg-gray-100 shrink-0">
                           <img src={it.image} alt={it.name} className="w-full h-full object-cover" />
                         </div>
@@ -130,13 +108,15 @@ export default function CartPage() {
                         <div className="flex-1 flex flex-col">
                           <div className="flex items-start justify-between gap-3 mb-2">
                             <div>
-                              <span className="inline-block px-2 py-0.5 bg-green-50 text-green-700 rounded-full text-[10px] font-semibold uppercase tracking-wider mb-1.5">
-                                {it.category}
-                              </span>
+                              {it.category && (
+                                <span className="inline-block px-2 py-0.5 bg-green-50 text-green-700 rounded-full text-[10px] font-semibold uppercase tracking-wider mb-1.5">
+                                  {it.category}
+                                </span>
+                              )}
                               <h3 className="font-bold tracking-tight">{it.name}</h3>
                             </div>
                             <button
-                              onClick={() => remove(it.id)}
+                              onClick={() => remove(it.productId)}
                               aria-label={`Remove ${it.name}`}
                               className="text-gray-400 hover:text-red-500 transition shrink-0 p-1"
                             >
@@ -149,21 +129,21 @@ export default function CartPage() {
                           <div className="flex items-end justify-between mt-auto flex-wrap gap-3">
                             <div className="inline-flex items-center border border-gray-200 rounded-xl overflow-hidden">
                               <button
-                                onClick={() => updateQty(it.id, -1)}
+                                onClick={() => updateQty(it.productId, -1)}
                                 aria-label="Decrease quantity"
                                 className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 transition disabled:opacity-40"
-                                disabled={it.qty <= 1}
+                                disabled={it.quantity <= 1}
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                                 </svg>
                               </button>
-                              <span className="w-10 text-center font-semibold tabular-nums">{it.qty}</span>
+                              <span className="w-10 text-center font-semibold tabular-nums">{it.quantity}</span>
                               <button
-                                onClick={() => updateQty(it.id, 1)}
+                                onClick={() => updateQty(it.productId, 1)}
                                 aria-label="Increase quantity"
                                 className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 transition disabled:opacity-40"
-                                disabled={it.qty >= 10}
+                                disabled={it.quantity >= 50}
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -172,7 +152,7 @@ export default function CartPage() {
                             </div>
 
                             <p className="text-lg font-bold text-green-700 tabular-nums">
-                              ₹{(it.price * it.qty).toLocaleString("en-IN")}
+                              ₹{(it.price * it.quantity).toLocaleString("en-IN")}
                             </p>
                           </div>
                         </div>
@@ -237,10 +217,7 @@ export default function CartPage() {
                         <input
                           type="text"
                           value={coupon}
-                          onChange={(e) => {
-                            setCoupon(e.target.value);
-                            setCouponError("");
-                          }}
+                          onChange={(e) => { setCoupon(e.target.value); setCouponError(""); }}
                           placeholder="WELCOME10"
                           className="flex-1 border border-gray-200 px-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-400 transition uppercase"
                         />
@@ -256,9 +233,20 @@ export default function CartPage() {
                     </div>
                   )}
 
-                  <button className="w-full bg-gradient-to-r from-green-700 to-green-600 text-white py-3.5 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:-translate-y-0.5 transition-all">
-                    Proceed to Checkout
+                  <button
+                    onClick={handleCheckout}
+                    disabled={!cartIsFromBackend}
+                    title={!cartIsFromBackend ? "Backend products are required to checkout" : undefined}
+                    className="w-full bg-gradient-to-r from-green-700 to-green-600 text-white py-3.5 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {user ? "Proceed to Checkout" : "Log in & Checkout"}
                   </button>
+
+                  {!cartIsFromBackend && (
+                    <p className="text-[11px] text-amber-700 mt-2 text-center">
+                      Some items are sample data. Refresh from the product page after seeding the backend to checkout.
+                    </p>
+                  )}
 
                   <div className="mt-5 pt-5 border-t border-gray-100 grid grid-cols-3 gap-2 text-[11px] text-gray-500">
                     {[
