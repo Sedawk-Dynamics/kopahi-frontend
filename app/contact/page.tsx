@@ -3,9 +3,42 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import Footer from "../components/Footer";
 
 export default function ContactPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [statusMessage, setStatusMessage] = useState("");
+
+  const updateField = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm((f) => ({ ...f, [field]: e.target.value }));
+    if (status !== "idle") {
+      setStatus("idle");
+      setStatusMessage("");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { name, email, subject, message } = form;
+    if (!name.trim() || !subject.trim() || !message.trim()) {
+      setStatus("error");
+      setStatusMessage("Please fill in your name, subject and message.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setStatus("error");
+      setStatusMessage("Please enter a valid email address.");
+      return;
+    }
+    setStatus("loading");
+    setStatusMessage("");
+    await new Promise((r) => setTimeout(r, 800));
+    setStatus("success");
+    setStatusMessage("Thanks! We'll get back to you within 24 hours.");
+    setForm({ name: "", email: "", subject: "", message: "" });
+  };
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -30,18 +63,12 @@ export default function ContactPage() {
             </p>
 
             <div className="flex items-center gap-5">
-              <Link
-                href="/"
-                className="hover:text-green-200 transition"
-              >
-                Home
+              <Link href="/track-order" className="hover:text-green-200 transition">
+                Track Order
               </Link>
 
-              <Link
-                href="/products"
-                className="hover:text-green-200 transition"
-              >
-                Products
+              <Link href="/b2b" className="hover:text-green-200 transition">
+                Bulk Orders
               </Link>
             </div>
 
@@ -60,9 +87,10 @@ export default function ContactPage() {
               >
                 <div className="relative h-16 w-36">
                   <Image
-                    src="/logo1.png"
+                    src="/Logo1.png"
                     alt="Kopahi Logo"
                     fill
+                    sizes="160px"
                     priority
                     className="object-contain"
                   />
@@ -235,37 +263,67 @@ export default function ContactPage() {
             Contact Form
           </h3>
 
-          <div className="space-y-5">
+          <form onSubmit={handleSubmit} noValidate className="space-y-5">
 
             <input
               type="text"
+              value={form.name}
+              onChange={updateField("name")}
               placeholder="Your Name"
-              className="w-full border border-gray-200 p-4 rounded-xl focus:outline-none focus:border-green-700"
+              autoComplete="name"
+              disabled={status === "loading" || status === "success"}
+              className="w-full border border-gray-200 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-400 transition disabled:opacity-70"
             />
 
             <input
               type="email"
+              value={form.email}
+              onChange={updateField("email")}
               placeholder="Your Email"
-              className="w-full border border-gray-200 p-4 rounded-xl focus:outline-none focus:border-green-700"
+              autoComplete="email"
+              disabled={status === "loading" || status === "success"}
+              className="w-full border border-gray-200 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-400 transition disabled:opacity-70"
             />
 
             <input
               type="text"
+              value={form.subject}
+              onChange={updateField("subject")}
               placeholder="Subject"
-              className="w-full border border-gray-200 p-4 rounded-xl focus:outline-none focus:border-green-700"
+              disabled={status === "loading" || status === "success"}
+              className="w-full border border-gray-200 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-400 transition disabled:opacity-70"
             />
 
             <textarea
               rows={5}
+              value={form.message}
+              onChange={updateField("message")}
               placeholder="Your Message"
-              className="w-full border border-gray-200 p-4 rounded-xl focus:outline-none focus:border-green-700"
+              disabled={status === "loading" || status === "success"}
+              className="w-full border border-gray-200 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-400 transition resize-none disabled:opacity-70"
             ></textarea>
 
-            <button className="w-full bg-green-700 text-white py-4 rounded-xl font-semibold hover:bg-green-800 transition">
-              Submit Inquiry
+            <button
+              type="submit"
+              disabled={status === "loading" || status === "success"}
+              className="w-full bg-gradient-to-r from-green-700 to-green-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {status === "loading" ? "Sending…" : status === "success" ? "Sent" : "Submit Inquiry"}
             </button>
 
-          </div>
+            {statusMessage && (
+              <p
+                role="status"
+                aria-live="polite"
+                className={`text-sm text-center ${
+                  status === "error" ? "text-red-600" : "text-green-700 font-medium"
+                }`}
+              >
+                {statusMessage}
+              </p>
+            )}
+
+          </form>
 
         </div>
 
@@ -322,18 +380,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* ================= FOOTER ================= */}
-      <footer className="bg-black text-white text-center py-10">
-
-        <p className="text-lg font-semibold">
-          © 2026 Kopahi
-        </p>
-
-        <p className="text-sm text-gray-400 mt-2">
-          Truly Indigenous • Assam To India
-        </p>
-
-      </footer>
+      <Footer />
 
     </main>
   );

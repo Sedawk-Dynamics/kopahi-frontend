@@ -91,7 +91,7 @@ export default function SignupPage() {
 
         <div className="relative z-10">
           <Link href="/" className="inline-flex items-center gap-2 group">
-            <Image src="/logo1.png" alt="Kopahi" width={120} height={120} className="h-14 w-14 object-contain drop-shadow-lg group-hover:scale-105 transition-transform" />
+            <Image src="/Logo1.png" alt="Kopahi" width={120} height={120} className="h-14 w-14 object-contain drop-shadow-lg group-hover:scale-105 transition-transform" />
             <span className="text-3xl font-bold tracking-tight">Kopahi<span className="text-green-300">.</span></span>
           </Link>
         </div>
@@ -139,7 +139,7 @@ export default function SignupPage() {
         {/* Mobile header */}
         <div className="lg:hidden px-6 py-5 border-b border-gray-100 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo1.png" alt="Kopahi" width={80} height={80} className="h-10 w-10 object-contain" />
+            <Image src="/Logo1.png" alt="Kopahi" width={80} height={80} className="h-10 w-10 object-contain" />
             <span className="text-xl font-bold text-green-700 tracking-tight">Kopahi<span className="text-green-500">.</span></span>
           </Link>
           <Link href="/" className="text-sm text-gray-500 hover:text-green-700">← Back</Link>

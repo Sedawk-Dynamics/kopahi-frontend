@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useMemo } from "react";
+import Footer from "../components/Footer";
 
 type Product = {
   id: number;
@@ -51,7 +52,7 @@ export default function ProductsPage() {
       oldPrice: 749,
       category: "Honey",
       image:
-        "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&q=80",
+        "https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=800&q=80",
       rating: 4.8,
       reviews: 97,
       badge: "Sale",
@@ -63,7 +64,7 @@ export default function ProductsPage() {
       price: 299,
       category: "Spices",
       image:
-        "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=800&q=80",
+        "https://images.unsplash.com/photo-1615485290449-bd1d3ba66bf3?w=800&q=80",
       rating: 4.9,
       reviews: 203,
       badge: "GI Tagged",
@@ -71,7 +72,7 @@ export default function ProductsPage() {
     },
     {
       id: 4,
-      name: "Black Rice",
+      name: "Organic Black Rice",
       price: 699,
       category: "Rice",
       image:
@@ -81,7 +82,83 @@ export default function ProductsPage() {
       badge: "New",
       inStock: true,
     },
+    {
+      id: 5,
+      name: "Bhut Jolokia Chilli",
+      price: 399,
+      category: "Spices",
+      image:
+        "https://images.unsplash.com/photo-1583664063-dc7a31c12e21?w=800&q=80",
+      rating: 4.8,
+      reviews: 115,
+      badge: "Hot",
+      inStock: true,
+    },
+    {
+      id: 6,
+      name: "Joha Aromatic Rice",
+      price: 549,
+      oldPrice: 649,
+      category: "Rice",
+      image:
+        "https://images.unsplash.com/photo-1604908554007-fcb6c43c0a5d?w=800&q=80",
+      rating: 4.7,
+      reviews: 76,
+      badge: "GI Tagged",
+      inStock: true,
+    },
+    {
+      id: 7,
+      name: "Mustard Wild Honey",
+      price: 749,
+      category: "Honey",
+      image:
+        "https://images.unsplash.com/photo-1473973266408-ed4e27abdd47?w=800&q=80",
+      rating: 4.6,
+      reviews: 64,
+      inStock: false,
+    },
+    {
+      id: 8,
+      name: "Darjeeling Green Tea",
+      price: 449,
+      category: "Tea",
+      image:
+        "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?w=800&q=80",
+      rating: 4.8,
+      reviews: 134,
+      inStock: true,
+    },
   ];
+
+  const categoryFallbackHue: Record<string, string> = {
+    Tea: "166534/dcfce7",
+    Honey: "92400e/fef3c7",
+    Spices: "9a3412/fed7aa",
+    Rice: "44403c/f5f5f4",
+  };
+
+  const placeholder = (item: Product) =>
+    `https://placehold.co/800x800/${
+      categoryFallbackHue[item.category] ?? "14532d/86efac"
+    }?text=${encodeURIComponent(item.name)}`;
+
+  const badgeStyle = (badge?: string) => {
+    switch (badge) {
+      case "Bestseller":
+        return "bg-amber-500 text-white";
+      case "Sale":
+        return "bg-red-500 text-white";
+      case "GI Tagged":
+        return "bg-green-700 text-white";
+      case "New":
+        return "bg-blue-600 text-white";
+      case "Hot":
+        return "bg-orange-600 text-white";
+      default:
+        return "bg-gray-900 text-white";
+    }
+  };
 
   const filtered = useMemo(() => {
     let data =
@@ -143,9 +220,10 @@ export default function ProductsPage() {
               >
                 <div className="relative h-16 w-36">
                   <Image
-                    src="/logo1.png"
+                    src="/Logo1.png"
                     alt="Kopahi Logo"
                     fill
+                    sizes="160px"
                     priority
                     className="object-contain"
                   />
@@ -274,13 +352,21 @@ export default function ProductsPage() {
           </p>
 
           {/* SEARCH */}
-          <div className="max-w-xl mx-auto mt-10">
+          <div className="max-w-xl mx-auto mt-10 relative">
+            <svg
+              className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.3-4.3m1.3-5.2a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
+            </svg>
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search by name (e.g. tea, honey, turmeric)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-6 py-4 rounded-2xl text-gray-900 focus:outline-none"
+              className="w-full pl-14 pr-5 py-4 rounded-2xl text-gray-900 placeholder:text-gray-500 bg-white shadow-lg focus:outline-none focus:ring-2 focus:ring-green-300"
             />
           </div>
 
@@ -288,17 +374,17 @@ export default function ProductsPage() {
       </section>
 
       {/* ================= FILTERS ================= */}
-      <section className="bg-white py-5 border-b border-gray-100">
+      <section className="bg-white py-6 border-b border-gray-100 sticky top-[136px] z-30">
         <div className="max-w-7xl mx-auto px-6 flex flex-wrap gap-3 justify-center">
 
           {["All", "Tea", "Honey", "Rice", "Spices"].map((item) => (
             <button
               key={item}
               onClick={() => setActiveCategory(item)}
-              className={`px-5 py-2 rounded-full font-semibold transition ${
+              className={`px-5 py-2 rounded-full font-semibold transition border ${
                 activeCategory === item
-                  ? "bg-green-700 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-green-700 text-white border-green-700 shadow-md"
+                  : "bg-white text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300"
               }`}
             >
               {item}
@@ -310,66 +396,131 @@ export default function ProductsPage() {
 
       {/* ================= PRODUCTS ================= */}
       <section className="py-16 px-6">
-        <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-7">
+        <div className="max-w-7xl mx-auto">
 
-          {filtered.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition"
-            >
-              <img
-                src={item.image}
-                alt={item.name}
-                className="h-64 w-full object-cover"
-              />
+          <div className="flex items-center justify-between mb-8">
+            <p className="text-sm text-gray-600">
+              Showing <span className="font-semibold text-gray-900">{filtered.length}</span>{" "}
+              {filtered.length === 1 ? "product" : "products"}
+              {activeCategory !== "All" && (
+                <> in <span className="font-semibold text-green-700">{activeCategory}</span></>
+              )}
+            </p>
+          </div>
 
-              <div className="p-6">
-
-                <p className="text-sm text-green-700 font-semibold mb-2">
-                  {item.category}
-                </p>
-
-                <h3 className="text-xl font-bold mb-2">
-                  {item.name}
-                </h3>
-
-                <p className="text-gray-500 text-sm mb-4">
-                  ⭐ {item.rating} ({item.reviews} reviews)
-                </p>
-
-                <div className="flex items-center gap-3 mb-5">
-                  <span className="text-2xl font-bold text-green-700">
-                    ₹{item.price}
-                  </span>
-
-                  {item.oldPrice && (
-                    <span className="text-gray-400 line-through">
-                      ₹{item.oldPrice}
-                    </span>
-                  )}
-                </div>
-
-                <button className="w-full bg-gray-900 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition">
-                  Add To Cart
-                </button>
-
+          {filtered.length === 0 ? (
+            <div className="bg-white rounded-3xl border border-gray-100 py-20 px-6 text-center shadow-sm">
+              <div className="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-5">
+                <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 21l-4.3-4.3m1.3-5.2a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
+                </svg>
               </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+              <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                Try a different search or clear the filters to see all our authentic North East products.
+              </p>
+              <button
+                onClick={() => {
+                  setSearch("");
+                  setActiveCategory("All");
+                }}
+                className="px-6 py-2.5 rounded-xl bg-green-700 hover:bg-green-800 text-white font-semibold transition"
+              >
+                Reset filters
+              </button>
             </div>
-          ))}
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-7">
+              {filtered.map((item) => (
+                <div
+                  key={item.id}
+                  className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl border border-gray-100 hover:border-green-200 transition-all duration-500 hover:-translate-y-1 flex flex-col"
+                >
+                  <div className="relative aspect-square overflow-hidden bg-gray-100">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      loading="lazy"
+                      onError={(e) => {
+                        const t = e.currentTarget;
+                        if (!t.dataset.fallback) {
+                          t.dataset.fallback = "1";
+                          t.src = placeholder(item);
+                        }
+                      }}
+                      className={`h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 ${
+                        !item.inStock ? "opacity-60" : ""
+                      }`}
+                    />
+
+                    {item.badge && (
+                      <span
+                        className={`absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${badgeStyle(
+                          item.badge
+                        )}`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+
+                    {!item.inStock && (
+                      <span className="absolute top-3 right-3 bg-white/95 text-gray-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
+                        Out of Stock
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="p-6 flex flex-col flex-1">
+
+                    <span className="inline-block self-start px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-[11px] font-semibold uppercase tracking-wider mb-3">
+                      {item.category}
+                    </span>
+
+                    <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
+                      {item.name}
+                    </h3>
+
+                    <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-4">
+                      <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      <span className="font-medium text-gray-800">{item.rating}</span>
+                      <span className="text-gray-400">·</span>
+                      <span>{item.reviews} reviews</span>
+                    </div>
+
+                    <div className="flex items-baseline gap-2 mb-5 mt-auto">
+                      <span className="text-2xl font-bold text-green-700">
+                        ₹{item.price}
+                      </span>
+
+                      {item.oldPrice && (
+                        <span className="text-gray-400 line-through text-sm">
+                          ₹{item.oldPrice}
+                        </span>
+                      )}
+                    </div>
+
+                    <button
+                      disabled={!item.inStock}
+                      className={`w-full py-3 rounded-xl font-semibold text-sm transition ${
+                        item.inStock
+                          ? "bg-gray-900 hover:bg-green-700 text-white"
+                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      }`}
+                    >
+                      {item.inStock ? "Add To Cart" : "Notify Me"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
         </div>
       </section>
 
-      {/* ================= FOOTER ================= */}
-      <footer className="bg-black text-white text-center py-10">
-        <p className="text-lg font-semibold">
-          © 2026 Kopahi
-        </p>
-
-        <p className="text-sm text-gray-400 mt-2">
-          Truly Indigenous • Assam To India
-        </p>
-      </footer>
+      <Footer />
 
     </main>
   );
