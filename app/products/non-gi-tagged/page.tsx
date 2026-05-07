@@ -15,6 +15,8 @@ type Product = {
   rating: number;
 };
 
+
+
 const products: Product[] = [
   {
     id: "purple-rice",

@@ -231,6 +231,8 @@ export default function B2BPage() {
                 B2B Partnerships
               </span>
             </h1>
+
+            
             <p className="text-lg text-green-100 leading-relaxed max-w-xl">
               Source premium agricultural products directly from trusted
               vendors, farmers and regional producers across North East India —
