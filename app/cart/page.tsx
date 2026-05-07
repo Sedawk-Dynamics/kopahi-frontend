@@ -13,14 +13,14 @@ const SHIPPING_FEE = 99;
 
 export default function CartPage() {
   const router = useRouter();
-  const { items, setQuantity, remove, subtotal } = useCart();
+  const { items, setQuantity, remove, subtotal, coupon: appliedCoupon, applyCoupon: applyCouponApi, removeCoupon } = useCart();
   const { user } = useAuth();
 
   const [coupon, setCoupon] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; pct: number } | null>(null);
   const [couponError, setCouponError] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
 
-  const discount = appliedCoupon ? Math.round((subtotal * appliedCoupon.pct) / 100) : 0;
+  const discount = appliedCoupon ? appliedCoupon.discount : 0;
   const shipping = subtotal === 0 || subtotal - discount >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
   const total = subtotal - discount + shipping;
 
@@ -30,18 +30,18 @@ export default function CartPage() {
     setQuantity(id, item.quantity + delta);
   };
 
-  const applyCoupon = () => {
+  const applyCoupon = async () => {
     const code = coupon.trim().toUpperCase();
     setCouponError("");
     if (!code) return;
-    if (code === "WELCOME10") {
-      setAppliedCoupon({ code, pct: 10 });
+    setCouponLoading(true);
+    try {
+      await applyCouponApi(code);
       setCoupon("");
-    } else if (code === "ASSAM15") {
-      setAppliedCoupon({ code, pct: 15 });
-      setCoupon("");
-    } else {
-      setCouponError("Invalid coupon code.");
+    } catch (err: any) {
+      setCouponError(err?.message || "Invalid coupon code.");
+    } finally {
+      setCouponLoading(false);
     }
   };
 
@@ -175,7 +175,7 @@ export default function CartPage() {
                         <span>
                           Discount ({appliedCoupon.code})
                           <button
-                            onClick={() => setAppliedCoupon(null)}
+                            onClick={removeCoupon}
                             className="ml-2 text-xs text-gray-400 hover:text-red-500 underline"
                           >
                             remove
@@ -223,13 +223,14 @@ export default function CartPage() {
                         />
                         <button
                           onClick={applyCoupon}
-                          className="px-4 py-2.5 rounded-lg bg-gray-900 hover:bg-green-700 text-white font-semibold text-sm transition"
+                          disabled={couponLoading}
+                          className="px-4 py-2.5 rounded-lg bg-gray-900 hover:bg-green-700 disabled:opacity-60 text-white font-semibold text-sm transition"
                         >
-                          Apply
+                          {couponLoading ? "…" : "Apply"}
                         </button>
                       </div>
                       {couponError && <p className="text-xs text-red-600 mt-2">{couponError}</p>}
-                      <p className="text-[11px] text-gray-500 mt-2">Try: WELCOME10 · ASSAM15</p>
+                      <p className="text-[11px] text-gray-500 mt-2">Try: WELCOME10 · ASSAM15 · FESTIVE25</p>
                     </div>
                   )}
 

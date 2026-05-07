@@ -1,12 +1,32 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Footer from "./components/Footer";
 
 export default function Home() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [openSub, setOpenSub] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!openSub) return;
+    const onClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpenSub(null);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenSub(null);
+    };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [openSub]);
   const [wishlist, setWishlist] = useState<Set<string>>(new Set());
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterStatus, setNewsletterStatus] = useState<
@@ -47,11 +67,35 @@ export default function Home() {
     setNewsletterEmail("");
   };
 
-  const products = [
-    { name: "Assam Tea", price: "₹499", oldPrice: "₹599", tag: "Bestseller", img: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&q=80", rating: 4.9 },
-    { name: "Black Rice", price: "₹699", oldPrice: null, tag: "GI Tagged", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&q=80", rating: 4.8 },
-    { name: "Organic Watermelon", price: "₹599", oldPrice: null, tag: "Fresh", img: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&q=80", rating: 4.7 },
-    { name: "Broccoli", price: "₹299", oldPrice: "₹349", tag: "Organic", img: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=800&q=80", rating: 4.6 },
+  const giAgri = [
+    { name: "Joha Rice", price: "₹699", tag: "GI Tagged", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&q=80", rating: 4.9 },
+    { name: "Assam Tea", price: "₹499", oldPrice: "₹599", tag: "GI Tagged", img: "/products/assam-tea.jpg", rating: 4.9 },
+    { name: "Karbi Anglong Ginger", price: "₹349", tag: "GI Tagged", img: "/products/karbi-anglong-ginger.jpg", rating: 4.7 },
+    { name: "Kachai Lemon", price: "₹279", tag: "GI Tagged", img: "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=800&q=80", rating: 4.6 },
+    { name: "Muzaffarpur Lychee", price: "₹399", tag: "GI Tagged", img: "/products/lychee.jpg", rating: 4.7 },
+    { name: "Judima Rice Wine", price: "₹999", tag: "GI Tagged", img: "/products/judima.jpg", rating: 4.8 },
+    { name: "Bhut Jolokia Chilli", price: "₹399", tag: "GI Tagged", img: "/products/bhut-jolokia.jpg", rating: 4.8 },
+    { name: "Lakadong Turmeric", price: "₹349", tag: "GI Tagged", img: "/products/lakadong-turmeric.jpg", rating: 4.9 },
+    { name: "Muga Silk Thread", price: "₹2,499", tag: "GI Tagged", img: "/products/muga-silk-thread.jpg", rating: 4.9 },
+    { name: "Tripura Pineapple", price: "₹249", tag: "GI Tagged", img: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=800&q=80", rating: 4.6 },
+  ];
+
+  const giCrafts = [
+    { name: "Muga Silk Stole", price: "₹4,599", tag: "Handcraft", img: "/products/muga-silk-stole.jpg", rating: 4.9 },
+    { name: "Cane Basket Set", price: "₹1,299", tag: "Handcraft", img: "/products/cane-baskets.jpg", rating: 4.7 },
+  ];
+
+  const nonGi = [
+    { name: "Purple Rice", price: "₹599", img: "/products/purple-rice.jpg", rating: 4.6 },
+    { name: "Pepper Powder", price: "₹249", img: "/products/pepper-powder.jpg", rating: 4.5 },
+    { name: "Black Cardamom", price: "₹449", img: "/products/black-cardamom.jpg", rating: 4.7 },
+    { name: "Black Tea", price: "₹329", img: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?w=800&q=80", rating: 4.6 },
+    { name: "Blue Tea", price: "₹399", img: "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=800&q=80", rating: 4.7 },
+    { name: "Hibiscus Tea", price: "₹299", img: "https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=800&q=80", rating: 4.6 },
+    { name: "Mint Tea", price: "₹279", img: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&q=80", rating: 4.5 },
+    { name: "Rose Tea", price: "₹349", img: "/products/rose-tea.jpg", rating: 4.7 },
+    { name: "Chamomile Tea", price: "₹329", img: "/products/chamomile-tea.jpg", rating: 4.6 },
+    { name: "Tengamora Phul", price: "₹229", img: "https://images.unsplash.com/photo-1546548970-71785318a17b?w=800&q=80", rating: 4.5 },
   ];
 
   const reviews = [
@@ -63,10 +107,27 @@ export default function Home() {
     { name: "Kavya Iyer", location: "Chennai", text: "The bhut jolokia chillies are unreal — finally a brand that respects regional flavour." },
   ];
 
-  const navLinks = [
+  type SubItem = { href: string; label: string; description?: string };
+  type NavItem = { href: string; label: string; submenu?: SubItem[] };
+
+  const navLinks: NavItem[] = [
     { href: "/", label: "Home" },
-    { href: "/products", label: "Products" },
-    { href: "/about", label: "About" },
+    {
+      href: "/about",
+      label: "About",
+      submenu: [
+        { href: "/about", label: "About Kopahi", description: "Mission, vision and journey" },
+        { href: "/about/farmers", label: "About Farmers", description: "Farmer stories from the field" },
+      ],
+    },
+    {
+      href: "/products",
+      label: "Products",
+      submenu: [
+        { href: "/products/gi-tagged", label: "GI Tagged Products", description: "Authenticated regional produce" },
+        { href: "/products/non-gi-tagged", label: "Non-GI Products", description: "Curated everyday essentials" },
+      ],
+    },
     { href: "/b2b", label: "B2B" },
     { href: "/contact", label: "Contact" },
   ];
@@ -135,16 +196,16 @@ export default function Home() {
     }`}
   >
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="h-16 sm:h-20 lg:h-[88px] flex items-center justify-between">
+      <div className="h-20 sm:h-24 lg:h-[112px] flex items-center justify-between">
 
         {/* LOGO */}
         <Link href="/" className="group flex items-center gap-3 sm:gap-4">
-          <div className="relative h-12 w-[110px] sm:h-14 sm:w-[130px] lg:h-[72px] lg:w-[170px]">
+          <div className="relative h-14 w-[150px] sm:h-16 sm:w-[180px] lg:h-[88px] lg:w-[220px]">
             <Image
               src="/Logo1.png"
               alt="Kopahi Logo"
               fill
-              sizes="(max-width:640px) 110px, (max-width:1024px) 130px, 170px"
+              sizes="(max-width:640px) 150px, (max-width:1024px) 180px, 220px"
               priority
               className="object-contain transition-transform duration-500 group-hover:scale-105"
             />
@@ -155,23 +216,55 @@ export default function Home() {
               Truly Indigenous
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Assam Farms To Your Home
+              North East Farms To Your Home
             </p>
           </div>
         </Link>
 
         {/* DESKTOP MENU */}
-        <div className="hidden lg:flex items-center gap-10">
-          {navLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="relative text-[15px] font-semibold text-gray-700 hover:text-green-700 transition group"
-            >
-              {item.label}
-              <span className="absolute left-0 -bottom-2 h-[2px] w-0 bg-green-700 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-          ))}
+        <div ref={dropdownRef} className="hidden lg:flex items-center gap-10">
+          {navLinks.map((item) => {
+            if ("submenu" in item && item.submenu) {
+              const isOpen = openSub === item.label;
+              return (
+                <div key={item.label} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setOpenSub(isOpen ? null : item.label)}
+                    className="relative text-[15px] font-semibold text-gray-700 hover:text-green-700 transition group inline-flex items-center gap-1"
+                    aria-haspopup="true"
+                    aria-expanded={isOpen}
+                  >
+                    {item.label}
+                    <svg className="w-3.5 h-3.5 transition-transform" style={{ transform: isOpen ? "rotate(180deg)" : "none" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                    <span className="absolute left-0 -bottom-2 h-[2px] w-0 bg-green-700 transition-all duration-300 group-hover:w-full"></span>
+                  </button>
+                  {isOpen && (
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50">
+                      {item.submenu.map((s) => (
+                        <Link key={s.href} href={s.href} onClick={() => setOpenSub(null)} className="block px-4 py-3 rounded-xl hover:bg-green-50 transition group/item">
+                          <p className="font-semibold text-gray-900 group-hover/item:text-green-700">{s.label}</p>
+                          {s.description && <p className="text-xs text-gray-500 mt-0.5">{s.description}</p>}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="relative text-[15px] font-semibold text-gray-700 hover:text-green-700 transition group"
+              >
+                {item.label}
+                <span className="absolute left-0 -bottom-2 h-[2px] w-0 bg-green-700 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+            );
+          })}
         </div>
 
         {/* RIGHT SIDE */}
@@ -256,16 +349,37 @@ export default function Home() {
       <div className="lg:hidden border-t border-gray-100 bg-white shadow-xl">
         <div className="px-6 py-6 flex flex-col gap-4">
 
-          {navLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setMobileOpen(false)}
-              className="text-gray-700 font-semibold py-2 border-b border-gray-100 hover:text-green-700"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navLinks.map((item) => {
+            if ("submenu" in item && item.submenu) {
+              return (
+                <details key={item.label} className="group">
+                  <summary className="text-gray-700 font-semibold py-3 border-b border-gray-100 hover:text-green-700 cursor-pointer flex items-center justify-between list-none">
+                    {item.label}
+                    <svg className="w-4 h-4 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div className="pl-4 py-2 flex flex-col gap-2 border-b border-gray-100">
+                    {item.submenu.map((s) => (
+                      <Link key={s.href} href={s.href} onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-green-700 py-1.5 text-sm">
+                        {s.label}
+                      </Link>
+                    ))}
+                  </div>
+                </details>
+              );
+            }
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                className="text-gray-700 font-semibold py-3 border-b border-gray-100 hover:text-green-700"
+              >
+                {item.label}
+              </Link>
+            );
+          })}
 
           <div className="grid grid-cols-2 gap-3 pt-4">
             <Link
@@ -296,7 +410,7 @@ export default function Home() {
           loop
           playsInline
           preload="auto"
-          poster="/hero-poster.jpg"
+          poster="/products/tea-garden.jpg"
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover"
         >
@@ -307,14 +421,14 @@ export default function Home() {
         <div className="relative z-10 min-h-[100svh] flex items-center justify-center text-center px-5 sm:px-6 pt-24 sm:pt-28 lg:pt-36 pb-16 sm:pb-20">
           <div className="max-w-4xl text-white reveal">
             <p className="text-green-300 font-semibold text-xs sm:text-sm md:text-base mb-4 sm:mb-5 uppercase tracking-[0.22em] sm:tracking-[0.25em]">
-              Farmer Stories of Assam
+              Farmer Stories of North East India
             </p>
             <h1 className="text-[2.25rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-              From Assam Farms
+              From North East India
               <span className="block text-green-400 mt-2">To Your Home</span>
             </h1>
             <p className="mt-5 sm:mt-7 text-base sm:text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mx-auto">
-              Authentic tea, honey, black rice and spices sourced directly from trusted farmers across North East India.
+              Authentic tea, honey, black rice, spices and silks sourced directly from trusted farmers across all seven sister states.
             </p>
 
             <div className="mt-7 sm:mt-10 flex gap-3 sm:gap-4 justify-center flex-wrap">
@@ -379,13 +493,9 @@ export default function Home() {
       {/* ================= SOURCING MAP ================= */}
       <section className="py-16 sm:py-20 md:py-24 px-5 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto text-center">
-          <span className="inline-block px-4 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
+          <span className="inline-block px-4 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-10">
             Our Network
           </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-5 tracking-tight">Ingredient Sourcing Network</h2>
-          <p className="text-gray-600 mb-10 sm:mb-12 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
-            Premium ingredients sourced directly from Assam and North East India through verified farmers and regional producer collectives.
-          </p>
 
           <div className="bg-gradient-to-br from-gray-50 to-green-50 p-3 sm:p-4 md:p-6 rounded-3xl shadow-xl border border-green-100">
             <img src="/map.png" alt="Kopahi sourcing map showing farmer networks across North East India" className="w-full rounded-2xl object-cover" />
@@ -396,81 +506,78 @@ export default function Home() {
       {/* ================= PRODUCTS ================= */}
       <section className="py-16 sm:py-20 md:py-24 px-5 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 sm:mb-12 gap-4">
-            <div>
-              <span className="inline-block px-4 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
-                Featured
-              </span>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">Handpicked Products</h2>
-            </div>
-            <Link href="/products" className="text-green-700 font-semibold hover:text-green-800 inline-flex items-center gap-2 group">
-              View All Products
-              <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+          <div className="text-center mb-10 sm:mb-12">
+            <span className="inline-block px-4 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
+              Featured
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">Handpicked Products</h2>
+            <p className="text-gray-600 mt-3 max-w-2xl mx-auto text-base">
+              Three curated catalogues — GI tagged agricultural produce, GI tagged handcrafts, and our everyday essentials.
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 md:gap-7">
-            {products.map((item, i) => (
-              <div key={i} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 border border-gray-100">
-                <div className="relative overflow-hidden aspect-square bg-gray-100">
-                  <img src={item.img} alt={item.name} loading="lazy" className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  {item.tag && (
-                    <span className="absolute top-3 left-3 bg-green-700 text-white text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                      {item.tag}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      toggleWishlist(item.name);
-                    }}
-                    aria-pressed={wishlist.has(item.name)}
-                    aria-label={
-                      wishlist.has(item.name)
-                        ? `Remove ${item.name} from wishlist`
-                        : `Add ${item.name} to wishlist`
-                    }
-                    className="absolute top-3 right-3 w-9 h-9 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
-                  >
-                    <svg
-                      className={`w-4 h-4 transition-colors ${
-                        wishlist.has(item.name) ? "text-red-500" : "text-gray-700"
-                      }`}
-                      fill={wishlist.has(item.name) ? "currentColor" : "none"}
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </button>
+          {[
+            { title: "GI Tagged Agri Products", subtitle: "Authenticated produce from across the seven sister states", href: "/products/gi-tagged", items: giAgri },
+            { title: "GI Tagged Handcrafts", subtitle: "Heritage textiles and handicrafts", href: "/products/gi-tagged", items: giCrafts },
+            { title: "Non-GI Products", subtitle: "Everyday essentials curated by Kopahi", href: "/products/non-gi-tagged", items: nonGi },
+          ].map((group) => (
+            <div key={group.title} className="mb-14 last:mb-0">
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-6 gap-3">
+                <div>
+                  <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">{group.title}</h3>
+                  <p className="text-gray-500 text-sm mt-1">{group.subtitle}</p>
                 </div>
-
-                <div className="p-4 md:p-5">
-                  <div className="flex items-center gap-1 mb-2">
-                    <svg className="w-3.5 h-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span className="text-xs text-gray-600 font-medium">{item.rating}</span>
-                  </div>
-
-                  <h3 className="font-semibold text-base md:text-lg text-gray-900 mb-1 line-clamp-1">{item.name}</h3>
-
-                  <div className="flex items-baseline gap-2 mb-4">
-                    <p className="text-green-700 font-bold text-lg md:text-xl">{item.price}</p>
-                    {item.oldPrice && <p className="text-gray-400 line-through text-sm">{item.oldPrice}</p>}
-                  </div>
-
-                  <Link href="/products" className="block text-center w-full bg-gray-900 hover:bg-green-700 text-white py-2.5 rounded-lg transition-colors text-sm font-medium">
-                    View Product
-                  </Link>
-                </div>
+                <Link href={group.href} className="text-green-700 font-semibold hover:text-green-800 inline-flex items-center gap-2 group text-sm sm:text-base">
+                  View all
+                  <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
               </div>
-            ))}
-          </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5">
+                {group.items.map((item: any, i) => (
+                  <div key={`${group.title}-${i}`} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 border border-gray-100">
+                    <div className="relative overflow-hidden aspect-square bg-gray-100">
+                      <img src={item.img} alt={item.name} loading="lazy" className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      {item.tag && (
+                        <span className="absolute top-3 left-3 bg-green-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                          {item.tag}
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(item.name); }}
+                        aria-pressed={wishlist.has(item.name)}
+                        aria-label={wishlist.has(item.name) ? `Remove ${item.name} from wishlist` : `Add ${item.name} to wishlist`}
+                        className="absolute top-3 right-3 w-9 h-9 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                      >
+                        <svg className={`w-4 h-4 transition-colors ${wishlist.has(item.name) ? "text-red-500" : "text-gray-700"}`} fill={wishlist.has(item.name) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="p-3 md:p-4">
+                      <div className="flex items-center gap-1 mb-1.5">
+                        <svg className="w-3.5 h-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <span className="text-xs text-gray-600 font-medium">{item.rating}</span>
+                      </div>
+                      <h4 className="font-semibold text-sm md:text-base text-gray-900 mb-1 line-clamp-1">{item.name}</h4>
+                      <div className="flex items-baseline gap-2 mb-3">
+                        <p className="text-green-700 font-bold text-base md:text-lg">{item.price}</p>
+                        {"oldPrice" in item && item.oldPrice && <p className="text-gray-400 line-through text-xs">{item.oldPrice}</p>}
+                      </div>
+                      <Link href={group.href} className="block text-center w-full bg-gray-900 hover:bg-green-700 text-white py-2 rounded-lg transition-colors text-xs md:text-sm font-medium">
+                        View
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

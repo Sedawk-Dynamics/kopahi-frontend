@@ -1,23 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import Footer from "../components/Footer";
+import InlineNav from "../components/InlineNav";
 
 export default function AboutPage() {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [stats, setStats] = useState({ farmers: 0, products: 0, cities: 0, customers: 0 });
   const statsRef = useRef<HTMLDivElement | null>(null);
   const animatedRef = useRef(false);
-
-  const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/products", label: "Products" },
-    { href: "/about", label: "About" },
-    { href: "/b2b", label: "B2B" },
-    { href: "/contact", label: "Contact" },
-  ];
 
   useEffect(() => {
     if (!statsRef.current) return;
@@ -51,10 +42,66 @@ export default function AboutPage() {
   }, []);
 
   const milestones = [
-    { year: "2022", title: "The Idea", desc: "Born out of a simple realization — North East India's finest produce rarely reaches mainstream tables." },
-    { year: "2023", title: "First 50 Farmers", desc: "Onboarded the first cohort of growers across Assam tea gardens, paddy fields, and bee farms." },
-    { year: "2024", title: "Pan-India Launch", desc: "Launched D2C marketplace and shipped to 30+ cities with FSSAI-certified packaging." },
-    { year: "2025", title: "B2B & Exports", desc: "Opened wholesale, HoReCa, and international export channels for GI-tagged catalogues." },
+    { year: "2025", title: "Idea", desc: "Born out of a simple realisation — North East India's finest produce rarely reaches mainstream tables. The Kopahi idea took shape." },
+    { year: "2026", title: "Implementation / Start-Up", desc: "Kopahi launches. First cohort of growers onboarded across Assam tea gardens, paddy fields, ginger plots and bee farms." },
+    { year: "2027", title: "PAN India Launch", desc: "D2C marketplace shipping nationwide with FSSAI-certified packaging and a 30+ city last-mile network." },
+    { year: "2028", title: "Exports & B2B", desc: "Wholesale, HoReCa, and international export channels open for GI-tagged catalogues across Asia, EU and the Middle East." },
+  ];
+
+  const neStates = [
+    {
+      name: "Assam",
+      title: "Tea, silk and the mighty Brahmaputra",
+      desc: "Home to the world-famous Assam tea estates and the golden Muga silk — a textile so rare only Assam can grow the silkworm.",
+      img: "/products/tea-garden.jpg",
+    },
+    {
+      name: "Arunachal Pradesh",
+      title: "Land of the dawn-lit mountains",
+      desc: "26 major tribes, monasteries hugged by clouds, and orange groves that supply some of India's sweetest winter fruit.",
+      img: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=1200&q=85",
+    },
+    {
+      name: "Manipur",
+      title: "Black rice and the Loktak lake",
+      desc: "Chak-hao black rice, indigenous Sangai deer, and a textile tradition that turns kitchen looms into community heirlooms.",
+      img: "/products/black-rice.jpg",
+    },
+    {
+      name: "Meghalaya",
+      title: "Living root bridges and Lakadong gold",
+      desc: "Khasi, Jaintia and Garo communities. Lakadong turmeric here measures 7–9% curcumin — among the highest on earth.",
+      img: "/products/lakadong-turmeric.jpg",
+    },
+    {
+      name: "Mizoram",
+      title: "Bamboo crafts and the bird's-eye chilli",
+      desc: "Tightly-knit bamboo handicrafts, fiery Bird's Eye chillies, and one of the cleanest rice harvests in the country.",
+      img: "/products/cane-baskets.jpg",
+    },
+    {
+      name: "Nagaland",
+      title: "Naga chilli, smoked pork and Hornbill heritage",
+      desc: "Sixteen Naga tribes, the world's hottest chilli (Bhut Jolokia) and the Hornbill Festival that turns Kohima into a cultural mosaic.",
+      img: "/products/bhut-jolokia.jpg",
+    },
+    {
+      name: "Tripura",
+      title: "Pineapple, bamboo and the Ujjayanta palace",
+      desc: "The Queen pineapple — a GI-tagged variety, prized globally for its sweetness — grows on Tripura's terraced hillsides.",
+      img: "https://images.unsplash.com/photo-1550828520-4cb496926fc9?w=1200&q=85",
+    },
+  ];
+
+  const farmerScenes = [
+    { src: "/products/assam-tea.jpg",            caption: "Tea pluckers at first light · Dibrugarh, Assam" },
+    { src: "/products/lakadong-turmeric.jpg",    caption: "Drying turmeric · Lakadong, Meghalaya" },
+    { src: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?w=900&q=85", caption: "Hand-rolling green tea · Sivasagar" },
+    { src: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=900&q=85", caption: "Paddy harvest · Joha rice fields, Assam" },
+    { src: "/products/ginger-fresh.jpg",         caption: "Karbi Anglong ginger sorting" },
+    { src: "/products/tea-garden.jpg",           caption: "Inspecting fresh leaf · Jorhat" },
+    { src: "/products/muga-silk-thread.jpg",     caption: "Muga silk weaver · Sualkuchi" },
+    { src: "/products/cane-baskets.jpg",         caption: "Cane craft workshop · Tripura" },
   ];
 
   return (
@@ -91,77 +138,7 @@ export default function AboutPage() {
         }
       `}</style>
 
-      {/* ================= HEADER ================= */}
-      <nav className="sticky top-0 left-0 right-0 z-50">
-        <div className="bg-gradient-to-r from-green-900 via-green-800 to-green-900 text-white text-[13px] tracking-wide">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8 h-10 flex items-center justify-between">
-            <p className="hidden md:block font-medium">Open Doors To A World Of Indigenous Food</p>
-            <div className="flex items-center gap-5 text-sm">
-              <Link href="/track-order" className="hover:text-green-200 transition">Track Order</Link>
-              <Link href="/contact" className="hover:text-green-200 transition">Support</Link>
-              <Link href="/b2b" className="hover:text-green-200 transition">Bulk Orders</Link>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/95 backdrop-blur-xl shadow-xl border-b border-gray-100">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="h-[96px] flex items-center justify-between">
-              <Link href="/" className="group flex items-center gap-4">
-                <div className="relative h-[72px] w-[160px]">
-                  <Image src="/Logo1.png" alt="Kopahi Logo" fill sizes="160px" priority className="object-contain group-hover:scale-105 transition" />
-                </div>
-                <div className="hidden xl:block">
-                  <p className="text-[11px] uppercase tracking-[0.35em] text-green-700 font-semibold">Truly Indigenous</p>
-                  <p className="text-xs text-gray-500 mt-1">Assam Farms To Your Home</p>
-                </div>
-              </Link>
-
-              <div className="hidden lg:flex items-center gap-10">
-                {navLinks.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`relative text-[15px] font-semibold transition group ${
-                      item.label === "About" ? "text-green-700" : "text-gray-700 hover:text-green-700"
-                    }`}
-                  >
-                    {item.label}
-                    <span
-                      className={`absolute left-0 -bottom-2 h-[2px] transition-all duration-300 ${
-                        item.label === "About" ? "w-full bg-green-700" : "w-0 bg-green-700 group-hover:w-full"
-                      }`}
-                    ></span>
-                  </Link>
-                ))}
-              </div>
-
-              <div className="hidden lg:flex items-center gap-3">
-                <Link href="/login" className="px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-100 transition">Login</Link>
-                <Link href="/signup" className="px-6 py-3 rounded-xl bg-gradient-to-r from-green-700 to-green-600 text-white text-sm font-bold shadow-lg hover:shadow-2xl transition">Sign Up</Link>
-              </div>
-
-              <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden w-11 h-11 rounded-xl border border-gray-200 bg-white flex items-center justify-center">☰</button>
-            </div>
-          </div>
-
-          {mobileOpen && (
-            <div className="lg:hidden border-t border-gray-100 bg-white shadow-xl">
-              <div className="px-6 py-6 flex flex-col gap-4">
-                {navLinks.map((item) => (
-                  <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)} className="text-gray-700 font-semibold py-2 border-b border-gray-100 hover:text-green-700">
-                    {item.label}
-                  </Link>
-                ))}
-                <div className="grid grid-cols-2 gap-3 pt-4">
-                  <Link href="/login" className="text-center py-3 rounded-xl border border-gray-200 font-semibold">Login</Link>
-                  <Link href="/signup" className="text-center py-3 rounded-xl bg-green-700 text-white font-semibold">Sign Up</Link>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
+      <InlineNav active="About" />
 
       {/* ================= HERO (VIDEO) ================= */}
       <section className="relative h-[80vh] min-h-[560px] overflow-hidden">
@@ -187,11 +164,11 @@ export default function AboutPage() {
               Our Story
             </p>
             <h1 className="text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight">
-              Connecting Assam Farms
+              Connecting North East Farms
               <span className="block text-green-400 mt-2">To Every Home</span>
             </h1>
             <p className="mt-7 text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mx-auto">
-              Kopahi is a premium agri-commerce platform championing authentic, GI-tagged and natural products from the heart of North East India.
+              Kopahi is a premium agri-commerce platform championing authentic, GI-tagged and natural products from across the seven sister states — with Assam at its heart.
             </p>
 
             <div className="mt-10 flex gap-4 justify-center flex-wrap">
@@ -263,7 +240,7 @@ export default function AboutPage() {
               <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
                 <p className="text-green-300 font-semibold text-xs uppercase tracking-[0.3em] mb-2">Live On The Ground</p>
                 <p className="text-xl font-semibold leading-relaxed">
-                  Hand-picked at sunrise. Packed the same day. Shipped within 48 hours.
+                  Hand-picked at sunrise across Assam, Meghalaya, Manipur and beyond. Packed the same day. Shipped within 48 hours.
                 </p>
               </div>
             </div>
@@ -277,7 +254,7 @@ export default function AboutPage() {
                 </div>
                 <h3 className="text-2xl font-bold mb-3 tracking-tight">Our Mission</h3>
                 <p className="text-gray-600 leading-relaxed text-lg">
-                  Connect farmers, vendors and customers through a trusted marketplace — and put North East India's finest produce on every premium table in the country.
+                  Connect farmers, vendors and customers through a trusted marketplace — and put North East India's finest produce, with Assam leading, on every premium table in the country.
                 </p>
               </div>
 
@@ -436,44 +413,100 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ================= GALLERY MARQUEE ================= */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-green-50/30 overflow-hidden">
-        <div className="text-center mb-12 px-6">
+      {/* ================= 7 NORTH EAST STATES — HERITAGE & CULTURE ================= */}
+      <section className="py-24 px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-14">
+            <span className="inline-block px-4 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
+              Heritage & Culture
+            </span>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">The Seven Sister States</h2>
+            <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-lg">
+              Each of the seven sisters carries its own cuisine, weaves, festivals and farms. Kopahi sources from all of them.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {neStates.map((s) => (
+              <article
+                key={s.name}
+                className="group bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl border border-gray-100 hover:border-green-200 hover:-translate-y-1 transition-all duration-500"
+              >
+                <div className="aspect-[16/10] overflow-hidden">
+                  <img
+                    src={s.img}
+                    alt={`Heritage of ${s.name}`}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                </div>
+                <div className="p-6 md:p-7">
+                  <p className="text-green-700 font-bold text-xs tracking-[0.25em] uppercase mb-2">{s.name}</p>
+                  <h3 className="text-xl font-bold tracking-tight mb-2">{s.title}</h3>
+                  <p className="text-gray-600 leading-relaxed text-sm">{s.desc}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <p className="text-center text-gray-500 text-sm mt-10 max-w-2xl mx-auto">
+            Sikkim — though sometimes counted with the seven — is also part of our wider sourcing horizon for organic produce and Himalayan honey.
+          </p>
+        </div>
+      </section>
+
+      {/* ================= BEHIND THE SCENES — FARMERS PHOTOS & VIDEOS ================= */}
+      <section className="py-24 bg-gradient-to-br from-gray-50 via-white to-green-50/30 overflow-hidden">
+        <div className="text-center mb-14 px-6">
           <span className="inline-block px-4 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
             Behind The Scenes
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Glimpses From The Field</h2>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Farmers Behind Every Jar</h2>
+          <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-lg">
+            Real photos and clips from the people who grow, pick, dry, weave and pack everything you order.
+          </p>
         </div>
 
-        <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto px-6">
+          {/* Featured video */}
+          <div className="relative rounded-3xl overflow-hidden shadow-2xl mb-10 aspect-video bg-black">
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster="/products/tea-garden.jpg"
+              className="w-full h-full object-cover"
+            >
+              {/* Drop a real farmer-portrait video at /public/farmers.mp4 */}
+              <source src="/farmers.mp4" type="video/mp4" />
+              <source src="/farmer.mp4" type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+            <div className="absolute bottom-6 left-6 right-6 text-white">
+              <p className="text-green-200 text-xs uppercase tracking-[0.3em] font-semibold mb-1">Featured story</p>
+              <p className="text-xl md:text-2xl font-bold tracking-tight">Sunrise at the Dibrugarh tea garden</p>
+            </div>
+          </div>
 
-          <div className="marquee flex gap-6 px-6">
-            {[
-              "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=900&q=80",
-              "https://images.unsplash.com/photo-1500076656116-558758c991c1?w=900&q=80",
-              "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=900&q=80",
-              "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=900&q=80",
-              "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?w=900&q=80",
-              "https://images.unsplash.com/photo-1542838132-92c53300491e?w=900&q=80",
-            ]
-              .concat([
-                "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=900&q=80",
-                "https://images.unsplash.com/photo-1500076656116-558758c991c1?w=900&q=80",
-                "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=900&q=80",
-                "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=900&q=80",
-                "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?w=900&q=80",
-                "https://images.unsplash.com/photo-1542838132-92c53300491e?w=900&q=80",
-              ])
-              .map((src, i) => (
-                <div
-                  key={i}
-                  className="shrink-0 w-72 h-48 md:w-80 md:h-56 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.03] relative"
-                >
-                  <img src={src} alt="" loading="lazy" className="w-full h-full object-cover" />
-                </div>
-              ))}
+          {/* Photo grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {farmerScenes.map((scene, i) => (
+              <figure
+                key={i}
+                className="group relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500"
+              >
+                <img
+                  src={scene.src}
+                  alt={scene.caption}
+                  loading="lazy"
+                  className="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <figcaption className="absolute inset-0 flex items-end bg-gradient-to-t from-black/75 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-3 text-white text-xs font-medium leading-snug">
+                  {scene.caption}
+                </figcaption>
+              </figure>
+            ))}
           </div>
         </div>
       </section>
@@ -487,7 +520,7 @@ export default function AboutPage() {
           <div className="relative z-10 text-center max-w-2xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">Ready to taste the North East?</h2>
             <p className="text-green-100 mb-8 text-lg">
-              Join 10,000+ households already buying authentic, GI-tagged produce directly from Assam farmers.
+              Join 10,000+ households already buying authentic, GI-tagged produce directly from North East farmers.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Link href="/products" className="bg-white text-green-800 hover:bg-green-50 px-8 py-4 rounded-xl font-bold transition shadow-lg">

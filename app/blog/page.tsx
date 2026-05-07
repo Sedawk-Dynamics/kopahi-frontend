@@ -1,30 +1,87 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import PageShell from "../components/PageShell";
 import Footer from "../components/Footer";
-import { posts, categories } from "./posts";
 import BlogImage from "./BlogImage";
+import { api, ApiError } from "../lib/api";
+
+type ApiPost = {
+  _id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  coverImage: string;
+  author: string;
+  tags: string[];
+  publishedAt: string;
+};
+
+const formatDate = (iso: string) => {
+  try {
+    return new Date(iso).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return iso;
+  }
+};
+
+const readTime = (content: string) =>
+  Math.max(1, Math.round(content.replace(/<[^>]+>/g, "").split(/\s+/).length / 200));
 
 export default function BlogPage() {
+  const [posts, setPosts] = useState<ApiPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get<{ success: boolean; posts: ApiPost[] }>("/api/blog");
+        if (!cancelled) setPosts(res.posts || []);
+      } catch (err) {
+        if (!cancelled)
+          setError(err instanceof ApiError ? err.message : "Could not load blog");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    posts.forEach((p) => p.tags?.forEach((t) => set.add(t)));
+    return Array.from(set).slice(0, 10);
+  }, [posts]);
+
   const filtered = useMemo(() => {
     let data =
-      activeCategory === "All" ? posts : posts.filter((p) => p.category === activeCategory);
+      activeCategory === "All"
+        ? posts
+        : posts.filter((p) => p.tags?.includes(activeCategory));
     const q = search.trim().toLowerCase();
     if (q) {
       data = data.filter(
         (p) =>
           p.title.toLowerCase().includes(q) ||
           p.excerpt.toLowerCase().includes(q) ||
-          p.tags.some((t) => t.toLowerCase().includes(q))
+          (p.tags || []).some((t) => t.toLowerCase().includes(q))
       );
     }
     return data;
-  }, [activeCategory, search]);
+  }, [activeCategory, search, posts]);
 
   const showFeature = activeCategory === "All" && !search.trim();
   const [feature, ...rest] = filtered;
@@ -45,7 +102,6 @@ export default function BlogPage() {
               Recipes, farmer features, harvest notes and the occasional rant about why packaging matters.
             </p>
 
-            {/* SEARCH */}
             <div className="mt-10 max-w-xl mx-auto relative">
               <svg
                 className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
@@ -66,37 +122,42 @@ export default function BlogPage() {
           </div>
         </section>
 
-        {/* CATEGORY CHIPS */}
-        <section className="bg-white py-6 border-b border-gray-100 sticky top-[136px] z-30">
-          <div className="max-w-7xl mx-auto px-6 flex flex-wrap gap-3 justify-center">
-            {["All", ...categories].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-5 py-2 rounded-full font-semibold text-sm transition border ${
-                  activeCategory === cat
-                    ? "bg-green-700 text-white border-green-700 shadow-md"
-                    : "bg-white text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </section>
+        {categories.length > 0 && (
+          <section className="bg-white py-6 border-b border-gray-100 sticky top-[136px] z-30">
+            <div className="max-w-7xl mx-auto px-6 flex flex-wrap gap-3 justify-center">
+              {["All", ...categories].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-5 py-2 rounded-full font-semibold text-sm transition border ${
+                    activeCategory === cat
+                      ? "bg-green-700 text-white border-green-700 shadow-md"
+                      : "bg-white text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="py-16 px-6 flex-1">
           <div className="max-w-7xl mx-auto">
+            {loading && (
+              <div className="text-center py-16 text-gray-500">Loading stories…</div>
+            )}
 
-            {filtered.length === 0 && (
+            {!loading && error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm max-w-md mx-auto text-center">
+                {error}
+              </div>
+            )}
+
+            {!loading && !error && filtered.length === 0 && (
               <div className="bg-white rounded-3xl border border-gray-100 py-20 px-6 text-center shadow-sm max-w-2xl mx-auto">
-                <div className="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-5">
-                  <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M21 21l-4.3-4.3m1.3-5.2a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No stories match your search</h3>
-                <p className="text-gray-500 mb-6 max-w-md mx-auto">Try a different keyword or clear the filters.</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No stories yet</h3>
+                <p className="text-gray-500 mb-6 max-w-md mx-auto">Check back soon — we publish weekly.</p>
                 <button
                   onClick={() => {
                     setSearch("");
@@ -109,36 +170,36 @@ export default function BlogPage() {
               </div>
             )}
 
-            {showFeature && filtered.length > 0 && (
+            {!loading && showFeature && filtered.length > 0 && feature && (
               <Link
                 href={`/blog/${feature.slug}`}
                 className="group grid md:grid-cols-2 gap-8 items-center mb-16"
               >
                 <div className="relative h-72 md:h-[460px] rounded-3xl overflow-hidden shadow-xl">
                   <BlogImage
-                    src={feature.img}
+                    src={feature.coverImage}
                     alt={feature.title}
-                    category={feature.category}
+                    category={feature.tags?.[0] || "Story"}
                     fallbackText={feature.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 </div>
                 <div>
                   <span className="inline-block px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
-                    Featured · {feature.category}
+                    Featured · {feature.tags?.[0] || "Story"}
                   </span>
                   <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 group-hover:text-green-700 transition-colors">
                     {feature.title}
                   </h2>
                   <p className="text-gray-600 text-lg leading-relaxed mb-5">{feature.excerpt}</p>
                   <p className="text-sm text-gray-500">
-                    {feature.date} · {feature.readTime} min read · {feature.author.name}
+                    {formatDate(feature.publishedAt)} · {readTime(feature.content)} min read · {feature.author}
                   </p>
                 </div>
               </Link>
             )}
 
-            {filtered.length > 0 && (
+            {!loading && filtered.length > 0 && (
               <>
                 {!showFeature && (
                   <p className="text-sm text-gray-600 mb-6">
@@ -162,24 +223,24 @@ export default function BlogPage() {
                     >
                       <div className="aspect-[4/3] overflow-hidden">
                         <BlogImage
-                          src={p.img}
+                          src={p.coverImage}
                           alt={p.title}
-                          category={p.category}
+                          category={p.tags?.[0] || "Story"}
                           fallbackText={p.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         />
                       </div>
                       <div className="p-6 flex flex-col flex-1">
                         <span className="inline-block self-start px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-[11px] font-semibold uppercase tracking-wider mb-3">
-                          {p.category}
+                          {p.tags?.[0] || "Story"}
                         </span>
                         <h3 className="font-bold text-lg tracking-tight mb-2 group-hover:text-green-700 transition-colors line-clamp-2">
                           {p.title}
                         </h3>
                         <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">{p.excerpt}</p>
                         <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                          <span>{p.author.name}</span>
-                          <span>{p.readTime} min · {p.date}</span>
+                          <span>{p.author}</span>
+                          <span>{readTime(p.content)} min · {formatDate(p.publishedAt)}</span>
                         </div>
                       </div>
                     </Link>
@@ -190,12 +251,10 @@ export default function BlogPage() {
           </div>
         </section>
 
-        {/* NEWSLETTER CTA */}
         <section className="py-16 px-6 bg-white">
           <div className="max-w-4xl mx-auto bg-gradient-to-br from-green-700 to-green-900 rounded-3xl p-10 md:p-14 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/20 rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-400/15 rounded-full blur-3xl"></div>
-
             <div className="relative z-10 text-center">
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Get new stories in your inbox</h2>
               <p className="text-green-100 text-lg mb-8 max-w-xl mx-auto">

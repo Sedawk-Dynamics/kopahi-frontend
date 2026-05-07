@@ -3,10 +3,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { ApiUser, api, tokenStore, userStore } from "../lib/api";
 
+type LoginOpts = { remember?: boolean };
+
 type AuthState = {
   user: ApiUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<ApiUser>;
+  login: (email: string, password: string, opts?: LoginOpts) => Promise<ApiUser>;
   register: (payload: RegisterPayload) => Promise<ApiUser>;
   logout: () => void;
   refresh: () => Promise<void>;
@@ -58,14 +60,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(u);
   };
 
-  const login = useCallback(async (email: string, password: string) => {
-    const res = await api.post<{ success: boolean; token: string; user: ApiUser }>(
-      "/api/auth/login",
-      { email, password }
-    );
-    persist(res.token, res.user);
-    return res.user;
-  }, []);
+  const login = useCallback(
+    async (email: string, password: string, opts?: LoginOpts) => {
+      const res = await api.post<{ success: boolean; token: string; user: ApiUser }>(
+        "/api/auth/login",
+        { email, password, remember: !!opts?.remember }
+      );
+      persist(res.token, res.user);
+      return res.user;
+    },
+    []
+  );
 
   const register = useCallback(async (payload: RegisterPayload) => {
     const res = await api.post<{ success: boolean; token: string; user: ApiUser }>(

@@ -11,7 +11,7 @@ import { api, ApiError } from "../lib/api";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, subtotal, clear } = useCart();
+  const { items, subtotal, clear, coupon } = useCart();
   const { user, loading: authLoading } = useAuth();
 
   const [form, setForm] = useState({
@@ -59,9 +59,11 @@ export default function CheckoutPage() {
     );
   }
 
-  const shipping = subtotal >= 999 ? 0 : 99;
-  const tax = Math.round(subtotal * 0.05);
-  const total = subtotal + shipping + tax;
+  const discount = coupon?.discount ?? 0;
+  const discountedSubtotal = Math.max(0, subtotal - discount);
+  const shipping = discountedSubtotal >= 999 ? 0 : 99;
+  const tax = Math.round(discountedSubtotal * 0.05);
+  const total = discountedSubtotal + shipping + tax;
 
   const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -89,6 +91,7 @@ export default function CheckoutPage() {
           items: items.map((i) => ({ product: i.productId, quantity: i.quantity })),
           shippingAddress: form,
           paymentMethod,
+          couponCode: coupon?.code,
         },
         { auth: true }
       );
@@ -165,6 +168,12 @@ export default function CheckoutPage() {
 
               <div className="space-y-2 text-sm border-t border-gray-100 pt-4">
                 <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="font-semibold">₹{subtotal.toLocaleString("en-IN")}</span></div>
+                {coupon && (
+                  <div className="flex justify-between text-green-700">
+                    <span>Coupon ({coupon.code})</span>
+                    <span className="font-semibold">−₹{discount.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
                 <div className="flex justify-between"><span className="text-gray-600">Shipping</span><span className="font-semibold">{shipping === 0 ? "Free" : `₹${shipping}`}</span></div>
                 <div className="flex justify-between"><span className="text-gray-600">Tax (5%)</span><span className="font-semibold">₹{tax}</span></div>
                 <div className="flex justify-between text-base pt-2 border-t border-gray-100">
